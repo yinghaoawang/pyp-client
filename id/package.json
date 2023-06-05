@@ -10,7 +10,9 @@
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.4",
+    "axios": "^1.4.0",
     "svelte": "^3.58.0",
+    "svelte-use-form": "^2.6.2",
     "vite": "^4.3.9"
   }
 }
