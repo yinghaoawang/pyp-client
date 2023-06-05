@@ -4,11 +4,15 @@
     validators,
     HintGroup,
     Hint,
-    email,
+    maxLength,
+    minLength,
     required
   } from 'svelte-use-form';
 
   import axios from 'axios';
+
+  const searchParams = new URLSearchParams(window.location.search);
+  const redirectParam = searchParams.get('redirect');
 
   const form = useForm();
   const submitForm = (evt) => {
@@ -22,14 +26,21 @@
     axios
       .post('http://localhost:3000/login', data)
       .then((res) => {
-        console.log('Everything went good: ', res.data);
+        if (res.data?.token == null) {
+          throw new Error('Could not retrieve token');
+        }
+
+        alert('Everything went good!');
+        if (redirectParam) {
+          window.location.href = redirectParam + '?token=' + res.data.token;
+        }
       })
       .catch((err) => {
         console.error(err);
         if (err.code === 'ERR_BAD_REQUEST') {
           alert('Invalid credentials');
         } else {
-          alert('Something went wrong: ' + err.code);
+          alert('Something went wrong: ' + err.message);
         }
       });
   };
@@ -41,16 +52,21 @@
       <h1>Login</h1>
 
       <div class="form-input">
-        <label for="email">Email</label>
+        <label for="username">Username</label>
         <input
-          type="email"
-          name="email"
-          id="email"
-          use:validators={[required, email]}
+          type="text"
+          name="username"
+          id="username"
+          use:validators={[required, minLength(3), maxLength(16)]}
         />
-        <HintGroup for="email">
+        <HintGroup for="username">
           <Hint on="required">Required</Hint>
-          <Hint on="email" hideWhenRequired>Email is not valid</Hint>
+          <Hint on="minLength" hideWhenRequired let:value
+            >Minimum length {value}</Hint
+          >
+          <Hint on="maxLength" hideWhenRequired let:value
+            >Maximum length {value}</Hint
+          >
         </HintGroup>
       </div>
 
@@ -60,9 +76,17 @@
           type="password"
           name="password"
           id="password"
-          use:validators={[required]}
+          use:validators={[required, minLength(6), maxLength(32)]}
         />
-        <Hint for="password" on="required">Required</Hint>
+        <HintGroup for="password">
+          <Hint for="password" on="required">Required</Hint>
+          <Hint on="minLength" hideWhenRequired let:value
+            >Minimum length {value}</Hint
+          >
+          <Hint on="maxLength" hideWhenRequired let:value
+            >Maximum length {value}</Hint
+          >
+        </HintGroup>
       </div>
 
       <div class="form-input">
