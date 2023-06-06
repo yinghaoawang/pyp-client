@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { getJwtTokenFromCookie, setJwtTokenCookie } from './cookieHelper';
 import Navbar from './Navbar';
-import { redirectToLogin } from './helpers';
+import { useEffect } from 'react';
 const Wrapper = styled.section``;
 
 const ContentWrapper = styled.div`
@@ -20,25 +20,28 @@ const Text = styled.p`
   font-weight: bold;
 `;
 
-const Login = (props) => {
-  return <Text>HEY, A TOKEN EXISTS</Text>;
+const Home = (props) => {
+  return <Text>HEY, WELCOME TO THE SITE</Text>;
+};
+
+const Dashboard = (props) => {
+  return <Text>Good job, logging in</Text>;
 };
 
 function App() {
-  const searchParams = new URLSearchParams(window.location.search);
-  const tokenParam = searchParams.get('token');
-
-  if (tokenParam) {
-    setJwtTokenCookie(tokenParam);
-    const filteredUrl = window.location.href.replace(/([?&])token=[^&]+(&|$)/, '$1').replace(/[?&]$/, '');
-    window.location.href = filteredUrl;
-  }
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const tokenParam = searchParams.get('token');
+    if (tokenParam) {
+      setJwtTokenCookie(tokenParam);
+      const filteredUrl = window.location.href
+        .replace(/([?&])token=[^&]+(&|$)/, '$1')
+        .replace(/[?&]$/, '');
+      window.location.href = filteredUrl;
+    }
+  }, []);
 
   const jwtToken = getJwtTokenFromCookie();
-  if (jwtToken == null) {
-    alert('You must log in');
-    redirectToLogin();
-  }
 
   return (
     <Wrapper>
@@ -46,7 +49,7 @@ function App() {
         <Navbar />
       </NavbarWrapper>
       <ContentWrapper>
-        <Login jwtToken={jwtToken} />
+        {jwtToken ? <Dashboard /> : <Home />}
       </ContentWrapper>
     </Wrapper>
   );
