@@ -71,9 +71,9 @@ class Lobby extends Phaser.Scene {
 
     updatePanel(scrollablePanel, lobbies);
 
-    this.add.text(0, 580, 'Join or create a lobby');
+    this.add.text(5, 580, 'Join or create a lobby');
     this.add
-      .text(0, 0, 'Back')
+      .text(5, 5, 'Back')
       .setInteractive({ cursor: 'pointer' })
 
       .on('pointerdown', () => {
