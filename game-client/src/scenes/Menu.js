@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import gameState from '../model/gameState';
 import levels from '../data/levels';
+import { TextButton, Column, Viewport } from 'phaser-ui-tools';
 
 class Menu extends Phaser.Scene {
   constructor() {
@@ -9,32 +10,33 @@ class Menu extends Phaser.Scene {
 
   init(data) {}
 
-  preload() {}
+  preload() {
+    this.load.image('med-button', 'assets/button-200x50.png');
+  }
 
   create(data) {
-    this.add.text(10, 10, `Menu`, { font: '48px Arial', fill: '#000000' });
+    const btnFnc = (evt) => {
+      console.log('button pressed', evt);
+    };
 
-    // Add level menu buttons.
-    const itemsPerRow = 4;
-    for (let i = 0; i < levels.length; i ++) {
-      const unlocked = i <= gameState.maxUnlockedLevel();
-      const button = this.add.text(
-        80 + (i % itemsPerRow) * 150, 
-        140 + Math.floor(i / itemsPerRow) * 120, 
-        levels[i].name, 
-        {
-          font: '30px Arial',
-          fill: '#000000',
-        }
-      );
-      button.alpha = unlocked ? 1 : 0.5;
-      if (unlocked) {
-        button.setInteractive();
-        // When menu button is clicked, switch to game scene and pass along the index for the selected level.
-        button.on('pointerup', () => this.scene.start('GameScene', { levelIndex: i }));
-      }
-    }
+    this.add.text(10, 10, `Lobby`, { font: '48px Arial', fill: '#000000' });
 
+    // Add buttons.
+    const buttonOne = new TextButton(this, 0, 0, 'med-button', btnFnc, this)
+      .setText('New Game')
+      .eventTextYAdjustment(3);
+    const buttonTwo = new TextButton(this, 0, 0, 'med-button', btnFnc, this)
+      .setText('Continue')
+      .eventTextYAdjustment(3);
+    const buttonThree = new TextButton(this, 0, 0, 'med-button', btnFnc, this, 1)
+      .setText('Options')
+      .setDisplaySize(200, 50)
+      .eventTextYAdjustment(3);
+
+    const column = new Column(this, 200, 100);
+    column.addNode(buttonOne, 0, 10);
+    column.addNode(buttonTwo, 0, 10);
+    column.addNode(buttonThree, 0, 10);
   }
 
   update(time, delta) {}

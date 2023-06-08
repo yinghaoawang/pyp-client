@@ -31,7 +31,7 @@ class Preloader extends Phaser.Scene {
 
     // All preloading and initialization is done. Add start button. (Could alternatively switch straight to menu).
     const startButton = this.add.text(400, 450, 'START', { font: '40px Arial', fill: '#000000' });
-    startButton.setInteractive();
+    startButton.setInteractive({cursor: 'pointer'});
     startButton.setOriginFromFrame();
     startButton.on('pointerup', () => this.scene.start('MenuScene'));
   }

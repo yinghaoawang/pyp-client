@@ -24,6 +24,7 @@
     "webpack-dev-server": "^4.15.0"
   },
   "dependencies": {
-    "phaser": "^3.60.0"
+    "phaser": "^3.60.0",
+    "phaser-ui-tools": "^2.0.0-beta"
   }
 }
