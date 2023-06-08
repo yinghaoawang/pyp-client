@@ -25,6 +25,6 @@
   },
   "dependencies": {
     "phaser": "^3.60.0",
-    "phaser-ui-tools": "^2.0.0-beta"
+    "phaser3-rex-plugins": "^1.60.2"
   }
 }

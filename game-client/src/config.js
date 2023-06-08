@@ -1,13 +1,28 @@
 import Phaser from 'phaser';
+import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
 
 export default {
   type: Phaser.AUTO,
-  parent: 'game',
-  backgroundColor: '#33A5E7',
+  parent: 'phaser-example',
+  width: 800,
+  height: 600,
   scale: {
-    width: 800,
-    height: 600,
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
+    autoCenter: Phaser.Scale.CENTER_BOTH
   },
+  dom: {
+    createContainer: false
+  },
+  scene: null,
+  backgroundColor: 0x333333,
+  plugins: {
+    scene: [
+      {
+        key: 'rexUI',
+        plugin: RexUIPlugin,
+        mapping: 'rexUI'
+      }
+      // ...
+    ]
+  }
 };
