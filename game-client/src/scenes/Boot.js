@@ -8,7 +8,8 @@ class Boot extends Phaser.Scene {
   init(data) {}
 
   preload() {
-    this.load.image('logo', 'assets/phaser3-logo.png');
+    this.load.setPath('assets');
+    this.load.image('logo', 'phaser3-logo.png');
   }
 
   create(data) {

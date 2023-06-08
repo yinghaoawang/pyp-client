@@ -28,12 +28,12 @@ class Game extends Phaser.Scene {
   }
 
   failLevel() {
-    this.scene.start('MenuScene');
+    this.scene.start('LobbyScene');
   }
   
   completeLevel() {
     gameState.completeLevel(this.levelIndex);
-    this.scene.start('MenuScene');
+    this.scene.start('LobbyScene');
   }
 
   update(time, delta) {}
