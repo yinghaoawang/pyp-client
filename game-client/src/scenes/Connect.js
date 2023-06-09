@@ -29,7 +29,7 @@ class Connect extends Phaser.Scene {
       setTimeout(() => {
         this.loadingText.setText('Connected, click anywhere');
         this.input.on('pointerdown', () => {
-          this.scene.start('LobbyScene');
+          this.scene.start('LobbyDirectory');
         });
       }, 1000);
       this.isLoading = false;
