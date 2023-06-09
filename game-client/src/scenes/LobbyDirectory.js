@@ -35,13 +35,21 @@ class LobbyDirectory extends Phaser.Scene {
       this.lobbies = [
         {
           name: 'jkKJSKLjkl234lkjzJK',
-          host: 'Jojo',
-          users: [1, 2, 3, 4, 5]
+          host: { id: 3, username: 'ai94' },
+          users: [
+            { id: 1, username: 'Ronpob' },
+            { id: 2, username: 'Jonthan' },
+            { id: 3, username: 'ai94' },
+            { id: 4, username: 'Someguy' }
+          ]
         },
         {
           name: 'doko',
-          host: 'coco',
-          users: [8, 42]
+          host: { id: 8, username: 'coco' },
+          users: [
+            { id: 8, username: 'coco' },
+            { id: 42, username: 'jojo6879' }
+          ]
         }
       ];
       this.loadingSet.delete('getLobbies');
@@ -62,11 +70,22 @@ class LobbyDirectory extends Phaser.Scene {
       .layout()
       .setInteractive({ cursor: 'pointer' })
       .on('pointerdown', () => {
+        const lobbyName = prompt('Enter a lobby name:');
+        if (lobbyName?.trim() == '' || lobbyName == null) {
+          return;
+        }
+
         game.loadingSet.add('createLobby');
+        const createdLobby = {
+          id: 'jkkdkSLJkl23ljkSKLDJ=42',
+          name: lobbyName,
+          host: gameState.getCurrentUser(),
+          users: [gameState.getCurrentUser()]
+        };
 
         setTimeout(() => {
           game.loadingSet.delete('createLobby');
-          game.scene.start('LobbyScene');
+          game.scene.start('LobbyScene', createdLobby);
         }, 1000);
       });
   }
@@ -93,7 +112,7 @@ const createScrollablePanel = function (game) {
     .scrollablePanel({
       x: 400,
       y: 265,
-      width: 450,
+      width: 500,
       height: 500,
 
       scrollMode: 0,
@@ -143,7 +162,7 @@ const updatePanel = function (game, panel, lobbies) {
 
   sizer.clear(true);
   for (const lobby of lobbies) {
-    const lobbyText = `${lobby.name}\nHost: ${lobby.host}\n${lobby.users.length} users`;
+    const lobbyText = `${lobby.name}\nHost: ${lobby.host.username}\n${lobby.users.length} users`;
 
     sizer.add(
       game.add
@@ -157,7 +176,7 @@ const updatePanel = function (game, panel, lobbies) {
 
           setTimeout(() => {
             game.loadingSet.delete('joinLobby');
-            game.scene.start('LobbyScene');
+            game.scene.start('LobbyScene', lobby);
           }, 1000);
         })
     );

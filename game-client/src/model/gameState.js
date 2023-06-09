@@ -1,18 +1,21 @@
-import Phaser from 'phaser'
+import Phaser from 'phaser';
 
 const Defaults = {
-  MaxUnlockedLevel: 0,
+  MaxUnlockedLevel: 0
 };
 
 class GameState extends Phaser.Events.EventEmitter {
-  
-  constructor () {
-    super()
+  constructor() {
+    super();
     this.Defaults = Defaults;
     this._data = {
       maxUnlockedLevel: Defaults.MaxUnlockedLevel
     };
     this.load();
+  }
+
+  getCurrentUser() {
+    return { id: 9, username: 'guywho-testmygame' };
   }
 
   // Loads previously saved game state from local storage.
@@ -38,10 +41,12 @@ class GameState extends Phaser.Events.EventEmitter {
   }
 
   completeLevel(levelIndex) {
-    this._data.maxUnlockedLevel = Math.max(this._data.maxUnlockedLevel, levelIndex + 1);
+    this._data.maxUnlockedLevel = Math.max(
+      this._data.maxUnlockedLevel,
+      levelIndex + 1
+    );
     this.save();
   }
-
 }
 
 const gameState = new GameState();
