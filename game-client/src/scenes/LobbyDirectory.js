@@ -165,11 +165,28 @@ const updatePanel = function (game, panel, lobbies) {
     const lobbyText = `${lobby.name}\nHost: ${lobby.host.username}\n${lobby.users.length} users`;
 
     sizer.add(
-      game.add
-        .text(0, 0, lobbyText, {
-          fontSize: 18
+      game.rexUI.add
+        .label({
+          background: game.rexUI.add.roundRectangle(
+            0,
+            0,
+            0,
+            0,
+            15,
+            COLOR_LIGHT
+          ),
+          text: game.add.text(0, 0, lobbyText, {
+            fontSize: 18,
+            color: '#44ff44'
+          }),
+          align: 'left',
+          space: {
+            top: 10,
+            left: 10,
+            right: 10,
+            bottom: 10
+          }
         })
-        .setTint(Phaser.Math.Between(0, 0x999999))
         .setInteractive({ cursor: 'pointer' })
         .on('pointerdown', () => {
           game.loadingSet.add('joinLobby');
