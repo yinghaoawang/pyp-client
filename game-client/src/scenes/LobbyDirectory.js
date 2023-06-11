@@ -70,7 +70,7 @@ class LobbyDirectory extends Phaser.Scene {
       .layout()
       .setInteractive({ cursor: 'pointer' })
       .on('pointerdown', () => {
-        const lobbyName = prompt('Enter a lobby name:');
+        const lobbyName = prompt('Enter a lobby name (test names: "ready" and "notready"):');
         if (lobbyName?.trim() == '' || lobbyName == null) {
           return;
         }
@@ -82,6 +82,12 @@ class LobbyDirectory extends Phaser.Scene {
           host: gameState.getCurrentUser(),
           users: [gameState.getCurrentUser()]
         };
+
+        if (lobbyName == 'ready') {
+          createdLobby.users.push({ id: 98, username: 'ready' });
+        } else if (lobbyName == 'notready') {
+          createdLobby.users.push({ id: 99, username: 'notready' });
+        }
 
         setTimeout(() => {
           game.loadingSet.delete('createLobby');

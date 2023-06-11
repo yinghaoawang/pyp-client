@@ -35,7 +35,19 @@ class Lobby extends Phaser.Scene {
         this.scene.start('LobbyDirectory');
       });
 
-    const sizer = this.rexUI.add
+    let sizer;
+
+    setTimeout(() => {
+      this.loadingSet.delete('getLobby');
+      const currentUser = gameState.getCurrentUser();
+      if (this.data.users.find((u) => u.id === currentUser.id) == null) {
+        this.data.users.push(currentUser);
+      }
+      if (this.data.users.find((u) => u.username === 'ready')) {
+        this.data.users.find((u) => u.username === 'ready').isReady = true;
+      }
+
+      sizer = this.rexUI.add
       .fixWidthSizer({
         x: getCenter(this).x,
         y: getCenter(this).y,
@@ -55,15 +67,9 @@ class Lobby extends Phaser.Scene {
         this.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_DARK)
       );
 
-    setTimeout(() => {
-      this.loadingSet.delete('getLobby');
-      const currentUser = gameState.getCurrentUser();
-      if (this.data.users.find((u) => u.id === currentUser.id) == null) {
-        this.data.users.push(currentUser);
-      }
       updateLobby(this, sizer, data);
     }, 1000);
-  }
+  } 
 
   update(time, delta) {
     if (this.loadingSet.has('getLobby')) {
@@ -110,14 +116,14 @@ const updateLobby = function (game, sizer, data) {
 
   sizer.add(title);
 
-  const allUsersReady = data.users.reduce((acc, user, idx) => {
-    if (acc === false) return false;
-    const isHost = data.host.username === user.username;
-    if (isHost) return true;
-    if (user.isReady) return true;
-    return false;
-  }, true);
-  console.log(allUsersReady ? 'all users ready' : 'some users not ready');
+  const allUsersReady = () =>
+    data.users.reduce((acc, user, idx) => {
+      if (acc === false) return false;
+      const isHost = data.host.username === user.username;
+      if (isHost) return true;
+      if (user.isReady) return true;
+      return false;
+    }, true);
 
   for (const user of data.users) {
     const isCurrentUser = gameState.getCurrentUser().username === user.username;
@@ -172,6 +178,7 @@ const updateLobby = function (game, sizer, data) {
         { expand: true }
       );
     if (isCurrentUser) {
+      const userButton = createUserButton();
       userItem.add(
         game.rexUI.add
           .sizer({
@@ -182,38 +189,57 @@ const updateLobby = function (game, sizer, data) {
             }
           })
 
-          .add(
-            game.rexUI.add
-              .label({
-                background: game.rexUI.add.roundRectangle(
-                  0,
-                  0,
-                  0,
-                  0,
-                  10,
-                  isHost ? allUsersReady ? COLOR_LIGHT : COLOR_DISABLED : COLOR_LIGHT
-                ),
-                text: scene.add.text(
-                  0,
-                  0,
-                  isHost ? 'Start Game' : !user.isReady ? 'Get Ready' : 'Cancel'
-                ),
-                space: {
-                  top: 10,
-                  left: 10,
-                  right: 10,
-                  bottom: 10
-                }
-              })
-              .setInteractive({ cursor: 'pointer' })
-              .on('pointerdown', () => {
-                user.isReady = !user.isReady;
-                updateLobby(game, sizer, data);
-              })
-          )
+          .add(userButton)
       );
     }
     sizer.add(userItem);
+  }
+
+  function createUserButton() {
+    const user = data.users.find(u => u.id === gameState.getCurrentUser().id);
+    if (user == null) {
+      throw new Error('Current user not found in lobby');
+    }
+    const isHost = data.host.username === user.username;
+
+    const userButton = game.rexUI.add.label({
+      background: game.rexUI.add.roundRectangle(
+        0,
+        0,
+        0,
+        0,
+        10,
+        isHost ? (allUsersReady() ? COLOR_LIGHT : COLOR_DISABLED) : COLOR_LIGHT
+      ),
+      text: scene.add.text(
+        0,
+        0,
+        isHost ? 'Start Game' : !user.isReady ? 'Get Ready' : 'Cancel'
+      ),
+      space: {
+        top: 10,
+        left: 10,
+        right: 10,
+        bottom: 10
+      }
+    });
+
+    if (isHost && !allUsersReady()) return userButton;
+
+    userButton.setInteractive({ cursor: 'pointer' }).on('pointerdown', () => {
+      if (!isHost) {
+        user.isReady = !user.isReady;
+        updateLobby(game, sizer, data);
+      } else {
+        if (allUsersReady()) {
+          console.log('start game');
+        } else {
+          console.error('All users are not ready');
+        }
+      }
+    });
+
+    return userButton;
   }
 
   sizer.layout();
