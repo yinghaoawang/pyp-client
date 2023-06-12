@@ -63,8 +63,11 @@ class GameEventQueue {
             setTimeout(() => {
               const { startingPlayerIndex } = payload;
               this.gameEngine.startGame(startingPlayerIndex);
-              this.gameUI.displayTurnSwitch();
-            }, 500);
+              const isCurrentPlayerTurn = this.gameState.isCurrentPlayerTurn();
+              this.gameUI.displayTurnSwitch(isCurrentPlayerTurn, () => {
+                resolve();
+              });
+            }, 10);
           }
         });
         break;

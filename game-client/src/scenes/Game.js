@@ -37,13 +37,13 @@ class Game extends Phaser.Scene {
       this.loadingSet.delete('initGame');
       this.isRunning = true;
 
-      this.gameEngine.initializePlayers({ currentPlayerIndex: 1 });
+      this.gameEngine.initializePlayers({ currentPlayerIndex: 0 });
       this.gameUI.init();
 
       this.gameEventQueue.handleEvent('drawCards', {
         metadata: {
           turn: 0,
-          playerIndex: 0
+          playerIndex: 1
         },
         cards: [
           { unknown: true },
@@ -56,7 +56,7 @@ class Game extends Phaser.Scene {
       this.gameEventQueue.handleEvent('drawCards', {
         metadata: {
           turn: 0,
-          playerIndex: 1
+          playerIndex: 0
         },
         cards: [
           {
@@ -149,6 +149,21 @@ class Game extends Phaser.Scene {
 
       this.gameEventQueue.handleEvent('startGame', {
         startingPlayerIndex: 0
+      });
+
+      this.gameEventQueue.handleEvent('drawCard', {
+        metadata: {
+          turn: 1,
+          playerIndex: 0
+        },
+        card: {
+          id: 12,
+          name: 'Skull',
+          attack: 5,
+          health: 5,
+          energyCost: 1,
+          imgUrl: 'https://i.imgur.com/YziVk4A.png'
+        }
       });
     }, 500);
   }

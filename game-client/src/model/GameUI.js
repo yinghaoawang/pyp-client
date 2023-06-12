@@ -10,18 +10,42 @@ export default class GameUI {
     this.gameEngine = gameEngine;
   }
 
-  displayTurnSwitch() {
+  displayTurnSwitch(isCurrentPlayerTurn, callback) {
     this.scene.turnTextSizer.removeAll(true);
     this.scene.turnTextSizer
       .add(
         this.createWrappedText(
-          'Your Turn',
+          isCurrentPlayerTurn ? 'Your Turn' : 'Enemy Turn',
           { fontSize: 18, align: 'center' },
           { width: 120, height: 50 }
         )
       )
       .layout();
     this.scene.turnTextSizer.setVisible(true);
+
+    const tween1 = this.scene.tweens.add({
+      targets: this.scene.turnTextSizer,
+      x: { from: -200, to: 400 },
+      ease: 'Linear',
+      duration: 500,
+      yoyo: false,
+      repeat: 0
+    });
+
+    tween1.on('complete', () => {
+      setTimeout(() => {
+        const tween2 = this.scene.tweens.add({
+          targets: this.scene.turnTextSizer,
+          x: { from: 400, to: 800 + 200 },
+          ease: 'Linear',
+          duration: 500,
+          yoyo: false,
+          repeat: 0
+        });
+
+        tween2.on('complete', callback);
+      }, 750);
+    });
   }
 
   init() {

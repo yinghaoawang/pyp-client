@@ -8,6 +8,21 @@ class GameState {
     this.turn = 0;
   }
 
+  isCurrentPlayerTurn() {
+    if (this.currentPlayerIndex == null || this.startingPlayerIndex == null) {
+      throw new Error('Player indices not set');
+    }
+
+    // TODO simplify this with math
+    if (this.startingPlayerIndex === this.currentPlayerIndex) {
+      if (this.turn % 2 === 1) return true;
+      return false;
+    } else {
+      if (this.turn % 2 === 1) return false;
+      return true;
+    }
+  }
+
   createPlayer(playerIndex, deckSize) {
     this.players[playerIndex] = new PlayerState(deckSize);
   }
