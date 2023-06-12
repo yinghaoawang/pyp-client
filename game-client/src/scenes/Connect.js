@@ -31,7 +31,7 @@ class Connect extends Phaser.Scene {
         this.input.on('pointerdown', () => {
           this.scene.start('LobbyDirectory');
         });
-      }, 1000);
+      }, 500);
       this.isLoading = false;
     }
   }

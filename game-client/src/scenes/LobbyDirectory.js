@@ -54,7 +54,7 @@ class LobbyDirectory extends Phaser.Scene {
       ];
       this.loadingSet.delete('getLobbies');
       updatePanel(game, scrollablePanel, this.lobbies);
-    }, 1000);
+    }, 500);
 
     this.add.text(5, 580, 'Join or create a lobby');
     this.add
@@ -200,7 +200,7 @@ const updatePanel = function (game, panel, lobbies) {
           setTimeout(() => {
             game.loadingSet.delete('joinLobby');
             game.scene.start('LobbyScene', lobby);
-          }, 1000);
+          }, 500);
         })
     );
     sizer.addNewLine();

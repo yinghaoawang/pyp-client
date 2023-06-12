@@ -13,6 +13,7 @@ class Game extends Phaser.Scene {
     this.gameState = new GameState();
     this.cardEngine = new CardEngine(this.gameState);
     this.gameEventQueue = new GameEventQueue(this.gameState, this.cardEngine);
+    this.isRunning = false;
   }
 
   preload() {}
@@ -28,6 +29,8 @@ class Game extends Phaser.Scene {
 
     setTimeout(() => {
       this.loadingSet.delete('initGame');
+      this.isRunning = true;
+
       this.gameEventQueue.handleEvent('setPlayerIndex', { index: 1 });
       this.gameEventQueue.handleEvent('drawCards', {
         turn: 0,
@@ -100,10 +103,8 @@ class Game extends Phaser.Scene {
               energyCost: 1,
               effects: [
                 {
-                  type: 'attack',
-                  multiplier: 1.5,
                   if: {
-                    case: {
+                    condition: {
                       target: {
                         has: {
                           type: 'debuff'
@@ -111,41 +112,14 @@ class Game extends Phaser.Scene {
                       }
                     },
                     effect: {
+                      type: 'attack',
                       multiplier: 3
                     }
-                  }
-                },
-                {
-                  type: 'removeDebuff',
-                  debuff: 'Wet',
-                  target: 'enemy'
-                }
-              ]
-            }
-          },
-          {
-            id: 5,
-            name: 'Bikachu',
-            attack: 4,
-            health: 4,
-            energyCost: 2,
-            ability: {
-              name: 'Shock',
-              energyCost: 1,
-              effects: [
-                {
-                  type: 'attack',
-                  multiplier: 1.5,
-                  if: {
-                    case: {
-                      target: {
-                        has: {
-                          type: 'debuff'
-                        }
-                      }
-                    },
+                  },
+                  else: {
                     effect: {
-                      multiplier: 3
+                      type: 'attack',
+                      multiplier: 1.5
                     }
                   }
                 },
@@ -167,6 +141,10 @@ class Game extends Phaser.Scene {
       this.loadingText.setVisible(true).setText('Initializing Game');
     } else {
       this.loadingText.setVisible(false);
+    }
+
+    if (this.isRunning) {
+      this.gameEventQueue.update();
     }
   }
 }
