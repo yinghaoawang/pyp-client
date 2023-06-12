@@ -4,11 +4,10 @@ const COLOR_LIGHT = 0x7b5e57;
 const COLOR_DARK = 0x260e04;
 
 export default class GameUI {
-  constructor(scene, gameState, cardEngine, gameEventQueue) {
+  constructor(scene, gameState, cardEngine) {
     this.scene = scene;
     this.gameState = gameState;
     this.cardEngine = cardEngine;
-    this.gameEventQueue = gameEventQueue;
   }
 
   init() {

@@ -13,12 +13,11 @@ class Game extends Phaser.Scene {
   init(data) {
     this.gameState = new GameState();
     this.cardEngine = new CardEngine(this.gameState);
-    this.gameEventQueue = new GameEventQueue(this.gameState, this.cardEngine);
-    this.gameUI = new GameUI(
-      this,
+    this.gameUI = new GameUI(this, this.gameState, this.cardEngine);
+    this.gameEventQueue = new GameEventQueue(
       this.gameState,
       this.cardEngine,
-      this.gameEventQueue
+      this.gameUI
     );
     this.isRunning = false;
   }
@@ -42,8 +41,10 @@ class Game extends Phaser.Scene {
       this.gameUI.init();
 
       this.gameEventQueue.handleEvent('drawCards', {
-        turn: 0,
-        playerIndex: 0,
+        metadata: {
+          turn: 0,
+          playerIndex: 0
+        },
         cards: [
           { unknown: true },
           { unknown: true },
@@ -53,8 +54,10 @@ class Game extends Phaser.Scene {
         ]
       });
       this.gameEventQueue.handleEvent('drawCards', {
-        turn: 0,
-        playerIndex: 1,
+        metadata: {
+          turn: 0,
+          playerIndex: 1
+        },
         cards: [
           { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
           { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
@@ -118,6 +121,8 @@ class Game extends Phaser.Scene {
           }
         ]
       });
+
+      this.gameEventQueue.handleEvent('wait', { ms: 500 });
     }, 500);
   }
 

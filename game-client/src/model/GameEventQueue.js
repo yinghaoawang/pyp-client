@@ -1,5 +1,5 @@
 class GameEventQueue {
-  constructor(gameState, cardEngine) {
+  constructor(gameState, cardEngine, gameUI) {
     this.eventQueue = [];
     this.gameState = gameState;
     this.cardEngine = cardEngine;
@@ -18,7 +18,6 @@ class GameEventQueue {
 
       this.currentEvent = this.eventQueue.shift();
       console.log('Starting new event ' + this.currentEvent.name);
-      console.log(this.currentEvent);
       new Promise((resolve, reject) =>
         this.currentEvent.command(resolve, reject)
       )
@@ -54,15 +53,36 @@ class GameEventQueue {
       case 'message':
         alert(payload);
         break;
-      case 'drawCards':
+      case 'drawCard':
         this.enqueue({
           name: eventName,
           command: (resolve, reject) => {
             setTimeout(() => {
-              this.cardEngine.drawCards(payload);
-              console.log('Cards draw finished');
+              const {
+                card,
+                metadata: { turn, playerIndex }
+              } = payload;
+
+              this.cardEngine.drawCard({ card, turn, playerIndex });
+              console.log('Card draw finished');
               resolve();
-            }, 500);
+            }, 150);
+          }
+        });
+        break;
+      case 'drawCards':
+        const { cards, metadata } = payload;
+        for (const card of cards) {
+          this.handleEvent('drawCard', { card, metadata });
+        }
+        break;
+      case 'wait':
+        this.enqueue({
+          name: eventName,
+          command: (resolve, reject) => {
+            setTimeout(() => {
+              resolve(0);
+            }, payload.ms);
           }
         });
         break;
