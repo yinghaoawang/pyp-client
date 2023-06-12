@@ -10,8 +10,12 @@ class GameState {
     if (currentPlayerIndex == null) throw new Error('currentPlayerIndex required to initialize players');
 
     this.currentPlayerIndex = currentPlayerIndex;
+
     this.players[this.getCurrentPlayerIndex()] = new PlayerState(20);
+    this.getCurrentPlayer().init();
+
     this.players[this.getOtherPlayerIndex()] = new PlayerState(20);
+    this.getOtherPlayer().init();
   }
 
   getOtherPlayer() {

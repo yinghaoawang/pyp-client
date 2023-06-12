@@ -68,7 +68,7 @@ class Lobby extends Phaser.Scene {
       );
 
       updateLobby(this, sizer, data);
-    }, 1000);
+    }, 500);
   } 
 
   update(time, delta) {

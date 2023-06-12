@@ -92,7 +92,7 @@ class LobbyDirectory extends Phaser.Scene {
         setTimeout(() => {
           game.loadingSet.delete('createLobby');
           game.scene.start('LobbyScene', createdLobby);
-        }, 1000);
+        }, 500);
       });
   }
 

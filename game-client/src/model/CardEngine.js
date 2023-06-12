@@ -10,7 +10,7 @@ class CardEngine {
       if (targetPlayer.deck.length === 0) throw new Error('Cannot draw from empty deck');
       targetPlayer.deck.pop();
     }
-    targetPlayer.hand.push(cards);
+    targetPlayer.hand.push(...cards);
   }
 }
 

@@ -1,9 +1,26 @@
 export default class PlayerState {
   constructor(deckSize) {
+    this.deckSize = deckSize;
+
     this.deck = [];
     this.discardPile = [];
-    this.addUnknownToDeck(deckSize);
     this.hand = [];
+  }
+
+  init() {
+    this.addUnknownToDeck(this.deckSize);
+  }
+
+  getDeck() {
+    return this.deck;
+  }
+
+  getDiscardPile() {
+    return this.discardPile;
+  }
+
+  getHand() {
+    return this.hand;
   }
 
   addUnknownToDeck(count = 1) {

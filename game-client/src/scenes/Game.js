@@ -4,6 +4,9 @@ import GameState from '../model/gameState';
 import CardEngine from '../model/cardEngine';
 import GameEventQueue from '../model/GameEventQueue';
 
+const COLOR_LIGHT = 0x7b5e57;
+const COLOR_DARK = 0x260e04;
+
 class Game extends Phaser.Scene {
   constructor() {
     super({ key: 'GameScene' });
@@ -14,6 +17,8 @@ class Game extends Phaser.Scene {
     this.cardEngine = new CardEngine(this.gameState);
     this.gameEventQueue = new GameEventQueue(this.gameState, this.cardEngine);
     this.isRunning = false;
+
+    this.initView();
   }
 
   preload() {}
@@ -32,6 +37,7 @@ class Game extends Phaser.Scene {
       this.isRunning = true;
 
       this.gameState.initializePlayers({ currentPlayerIndex: 1 });
+      
       this.gameEventQueue.handleEvent('drawCards', {
         turn: 0,
         playerIndex: 0,
@@ -118,11 +124,97 @@ class Game extends Phaser.Scene {
     }
   }
 
+  initView() {
+    this.otherPlayerHandSizer = this.rexUI.add
+      .fixWidthSizer({
+        x: getCenter(this).x,
+        y: 50,
+        width: 600,
+        height: 100,
+        space: {
+          left: 3,
+          right: 3,
+          top: 3,
+          bottom: 3,
+          item: 8
+        },
+        align: 'center'
+      })
+      .layout()
+      .drawBounds(this.add.graphics(), 0xff0000);
+    // this.otherPlayerDeckSizer = ;
+    this.currentPlayerHandSizer = this.rexUI.add
+      .fixWidthSizer({
+        x: getCenter(this).x,
+        y: 550,
+        width: 600,
+        height: 100,
+        space: {
+          left: 3,
+          right: 3,
+          top: 3,
+          bottom: 3,
+          item: 8
+        },
+        align: 'center'
+      })
+      .layout()
+      .drawBounds(this.add.graphics(), 0xff0000);
+    // this.currentPlayerDeckSizer = ;
+  }
+
   updateView() {
     const currentPlayer = this.gameState.getCurrentPlayer();
     const otherPlayer = this.gameState.getOtherPlayer();
 
-    console.log(currentPlayer, otherPlayer);
+    let sizer = this.otherPlayerHandSizer;
+    sizer.removeAll(true);
+    for (const card of otherPlayer.getHand()) {
+      sizer.add(
+        this.rexUI.add.label({
+          width: 75,
+          height: 100,
+          background: this.rexUI.add.roundRectangle(0, 0, 0, 0, 5, COLOR_DARK)
+        })
+      );
+      sizer.layout();
+    }
+
+    sizer = this.currentPlayerHandSizer;
+    sizer.removeAll(true);
+    for (const card of currentPlayer.getHand()) {
+      const cardSizer = this.rexUI.add
+        .fixWidthSizer({
+          width: 75,
+          height: 100,
+          space: {
+            left: 3,
+            right: 3,
+            top: 3,
+            bottom: 3,
+            item: 8
+          },
+          align: 'left'
+        })
+        .addBackground(
+          this.rexUI.add.roundRectangle(0, 0, 0, 0, 5, COLOR_LIGHT)
+        )
+
+        .add(
+          this.rexUI.add.label({
+            width: 75,
+            text: this.rexUI.wrapExpandText(
+              this.add.text(0, 0, `${card.name}`, {
+                fontSize: 18
+              })
+            ),
+            expandTextWidth: true,
+            align: 'left'
+          })
+        );
+      sizer.add(cardSizer);
+      sizer.layout();
+    }
   }
 }
 
