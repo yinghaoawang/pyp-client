@@ -4,13 +4,39 @@ const COLOR_LIGHT = 0x7b5e57;
 const COLOR_DARK = 0x260e04;
 
 export default class GameUI {
-  constructor(scene, gameState, cardEngine) {
+  constructor(scene, gameState, gameEngine) {
     this.scene = scene;
     this.gameState = gameState;
-    this.cardEngine = cardEngine;
+    this.gameEngine = gameEngine;
+  }
+
+  displayTurnSwitch() {
+    this.scene.turnTextSizer.removeAll(true);
+    this.scene.turnTextSizer
+      .add(
+        this.createWrappedText(
+          'Your Turn',
+          { fontSize: 18, align: 'center' },
+          { width: 120, height: 50 }
+        )
+      )
+      .layout();
+    this.scene.turnTextSizer.setVisible(true);
   }
 
   init() {
+    this.scene.turnTextSizer = this.createFwSizerWrapper({
+      width: 120,
+      height: 50,
+      align: 'center'
+    })
+      .addBackground(
+        this.scene.rexUI.add.roundRectangle(0, 0, 0, 0, 5, COLOR_LIGHT)
+      )
+      .setPosition(getCenter(this.scene).x, getCenter(this.scene).y)
+      .layout()
+      .setVisible(false);
+
     this.scene.otherPlayerHandSizer = this.scene.rexUI.add
       .fixWidthSizer({
         x: getCenter(this.scene).x,
@@ -95,7 +121,6 @@ export default class GameUI {
           }
         }).add(this.scene.add.sprite(0, 0, card.name).setDisplaySize(65, 65))
       );
-      console.log(this.scene.textures.get(card.name));
       if (this.scene.textures.get(card.name).key === '__MISSING') {
         toDataURL(card.imgUrl, (base64Data) => {
           this.scene.textures.addBase64(card.name, base64Data);

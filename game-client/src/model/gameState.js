@@ -4,18 +4,32 @@ class GameState {
   constructor() {
     this.players = [];
     this.currentPlayerIndex = null;
+    this.startingPlayerIndex = null;
+    this.turn = 0;
   }
 
-  initializePlayers({ currentPlayerIndex }) {
-    if (currentPlayerIndex == null) throw new Error('currentPlayerIndex required to initialize players');
+  createPlayer(playerIndex, deckSize) {
+    this.players[playerIndex] = new PlayerState(deckSize);
+  }
+
+  setStartingPlayerIndex(startingPlayerIndex) {
+    if (this.startingPlayerIndex != null) {
+      throw new Error('startingPlayerIndex is already set');
+    }
+
+    this.startingPlayerIndex = startingPlayerIndex;
+  }
+
+  setCurrentPlayerIndex(currentPlayerIndex) {
+    if (this.currentPlayerIndex != null) {
+      throw new Error('currentPlayerIndex is already set');
+    }
 
     this.currentPlayerIndex = currentPlayerIndex;
+  }
 
-    this.players[this.getCurrentPlayerIndex()] = new PlayerState(20);
-    this.getCurrentPlayer().init();
-
-    this.players[this.getOtherPlayerIndex()] = new PlayerState(20);
-    this.getOtherPlayer().init();
+  nextTurn() {
+    this.turn++;
   }
 
   getOtherPlayer() {

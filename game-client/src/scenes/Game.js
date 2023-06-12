@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { getCenter } from '../helpers';
 import GameState from '../model/gameState';
-import CardEngine from '../model/cardEngine';
+import GameEngine from '../model/GameEngine';
 import GameEventQueue from '../model/GameEventQueue';
 import GameUI from '../model/GameUI';
 
@@ -12,11 +12,11 @@ class Game extends Phaser.Scene {
 
   init(data) {
     this.gameState = new GameState();
-    this.cardEngine = new CardEngine(this.gameState);
-    this.gameUI = new GameUI(this, this.gameState, this.cardEngine);
+    this.gameEngine = new GameEngine(this.gameState);
+    this.gameUI = new GameUI(this, this.gameState, this.gameEngine);
     this.gameEventQueue = new GameEventQueue(
       this.gameState,
-      this.cardEngine,
+      this.gameEngine,
       this.gameUI
     );
     this.isRunning = false;
@@ -37,7 +37,7 @@ class Game extends Phaser.Scene {
       this.loadingSet.delete('initGame');
       this.isRunning = true;
 
-      this.gameState.initializePlayers({ currentPlayerIndex: 1 });
+      this.gameEngine.initializePlayers({ currentPlayerIndex: 1 });
       this.gameUI.init();
 
       this.gameEventQueue.handleEvent('drawCards', {
@@ -146,6 +146,10 @@ class Game extends Phaser.Scene {
       });
 
       this.gameEventQueue.handleEvent('wait', { ms: 500 });
+
+      this.gameEventQueue.handleEvent('startGame', {
+        startingPlayerIndex: 0
+      });
     }, 500);
   }
 
