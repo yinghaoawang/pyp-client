@@ -62,7 +62,7 @@ class GameEventQueue {
               this.cardEngine.drawCards(payload);
               console.log('Cards draw finished');
               resolve();
-            }, 1000);
+            }, 500);
           }
         });
         break;

@@ -21,8 +21,6 @@ class Game extends Phaser.Scene {
       this.gameEventQueue
     );
     this.isRunning = false;
-
-    
   }
 
   preload() {}
@@ -46,7 +44,13 @@ class Game extends Phaser.Scene {
       this.gameEventQueue.handleEvent('drawCards', {
         turn: 0,
         playerIndex: 0,
-        cards: [{}, {}, {}, {}, {}]
+        cards: [
+          { unknown: true },
+          { unknown: true },
+          { unknown: true },
+          { unknown: true },
+          { unknown: true }
+        ]
       });
       this.gameEventQueue.handleEvent('drawCards', {
         turn: 0,
@@ -114,7 +118,7 @@ class Game extends Phaser.Scene {
           }
         ]
       });
-    }, 2000);
+    }, 500);
   }
 
   update(time, delta) {

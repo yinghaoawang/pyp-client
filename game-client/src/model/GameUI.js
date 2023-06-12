@@ -48,45 +48,63 @@ export default class GameUI {
       .layout()
       .drawBounds(this.scene.add.graphics(), 0xff0000);
 
-    // this.otherPlayerDeckSizer = .fixWidthSizer({
-    // });
+    this.scene.otherPlayerDeckSizer = this.createCardSizer(null, {
+      unknown: true
+    })
+      .setPosition(50, 50)
+      .layout()
+      .drawBounds(this.scene.add.graphics(), 0xff0000);
 
-    // this.currentPlayerDeckSizer = ;
+    this.scene.currentPlayerDeckSizer = this.createCardSizer(null, {
+      unknown: true
+    })
+      .setPosition(750, 550)
+      .layout()
+      .drawBounds(this.scene.add.graphics(), 0xff0000);
   }
 
-  createCardSizer(card) {
-    if (card == null) throw new Error('Card is null');
+  createCardSizer(card, opts) {
+    if (card == null && opts?.unknown != true) throw new Error('Card is null');
 
     const cardSizer = this.scene.rexUI.add
       .fixWidthSizer({
         width: 75,
         height: 100,
-        space: {
-          left: 3,
-          right: 3,
-          top: 3,
-          bottom: 3,
-          item: 8
-        },
         align: 'left'
       })
       .addBackground(
-        this.scene.rexUI.add.roundRectangle(0, 0, 0, 0, 5, COLOR_LIGHT)
-      )
-      .add(
-        this.scene.rexUI.add.label({
-          width: 75,
-          text: this.scene.rexUI.wrapExpandText(
-            this.scene.add.text(0, 0, `${card.name}`, {
-              fontSize: 18
-            })
-          ),
-          expandTextWidth: true,
-          align: 'left'
-        })
+        this.scene.rexUI.add.roundRectangle(
+          0,
+          0,
+          0,
+          0,
+          5,
+          opts?.unknown === true ? COLOR_DARK : COLOR_LIGHT
+        )
       );
 
+    if (opts?.unknown != true) {
+      cardSizer.add(this.createWrappedText(`${card.name}`));
+    }
+
     return cardSizer;
+  }
+
+  createWrappedText(text, textOpts, labelOpts) {
+    const wrappedText = this.scene.rexUI.add.label({
+      width: 75,
+      text: this.scene.rexUI.wrapExpandText(
+        this.scene.add.text(0, 0, text, {
+          fontSize: 18,
+          ...textOpts
+        })
+      ),
+      expandTextWidth: true,
+      align: 'left',
+      ...labelOpts
+    });
+
+    return wrappedText;
   }
 
   update() {
@@ -96,22 +114,48 @@ export default class GameUI {
     let sizer = this.scene.otherPlayerHandSizer;
     sizer.removeAll(true);
     for (const card of otherPlayer.getHand()) {
-      sizer.add(
-        this.scene.rexUI.add.label({
-          width: 75,
-          height: 100,
-          background: this.scene.rexUI.add.roundRectangle(0, 0, 0, 0, 5, COLOR_DARK)
-        })
-      );
+      const cardSizer = this.createCardSizer(card, {
+        unknown: card.unknown
+      });
+      sizer.add(cardSizer);
       sizer.layout();
     }
 
     sizer = this.scene.currentPlayerHandSizer;
     sizer.removeAll(true);
     for (const card of currentPlayer.getHand()) {
-      const cardSizer = this.scene.gameUI.createCardSizer(card);
+      const cardSizer = this.createCardSizer(card, {
+        unknown: card.unknown
+      });
       sizer.add(cardSizer);
       sizer.layout();
     }
+
+    sizer = this.scene.otherPlayerDeckSizer;
+    sizer.removeAll(true);
+    sizer
+      .add(
+        this.createWrappedText(
+          this.gameState.getOtherPlayer().getDeck().length,
+          null,
+          {
+            align: 'center',
+            height: 100
+          }
+        )
+      )
+      .layout();
+
+    sizer = this.scene.currentPlayerDeckSizer;
+    sizer.removeAll(true);
+    sizer
+      .add(
+        this.createWrappedText(
+          this.gameState.getCurrentPlayer().getDeck().length,
+          null,
+          { align: 'center', height: 100 }
+        )
+      )
+      .layout();
   }
 }

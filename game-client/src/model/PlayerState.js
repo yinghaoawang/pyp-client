@@ -23,9 +23,13 @@ export default class PlayerState {
     return this.hand;
   }
 
+  /**
+   * Adds unknown cards to this player's deck
+   * @param {number} count 
+   */
   addUnknownToDeck(count = 1) {
     for (let i = 0; i < count; i++) {
-      this.deck.push({});
+      this.deck.push({unknown: true});
     }
   }
 }
