@@ -7,7 +7,7 @@ class GameEventQueue {
     this.isPaused = false;
   }
 
-  update() {
+  update(game) {
     if (this.isPaused) return;
 
     if (this.currentEvent == null) {
@@ -24,6 +24,7 @@ class GameEventQueue {
       )
         .then(() => {
           this.currentEvent = null;
+          game.updateView();
           console.log('Event finished');
         })
         .catch((err) => {
@@ -53,30 +54,17 @@ class GameEventQueue {
       case 'message':
         alert(payload);
         break;
-      case 'setPlayerIndex':
-        this.enqueue({
-          name: eventName,
-          command: (resolve, reject) => {
-            setTimeout(() => {
-              this.gameState.setPlayerIndex(payload);
-              console.log('Player index has been set');
-              resolve();
-            }, 1000);
-          }
-        });
-        break;
       case 'drawCards':
         this.enqueue({
           name: eventName,
           command: (resolve, reject) => {
             setTimeout(() => {
               this.cardEngine.drawCards(payload);
-              console.log('Cards drawn');
+              console.log('Cards draw finished');
               resolve();
             }, 1000);
           }
         });
-
         break;
       default:
         console.error(`Unrecognized event: ${eventName}`);

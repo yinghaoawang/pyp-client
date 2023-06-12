@@ -31,41 +31,11 @@ class Game extends Phaser.Scene {
       this.loadingSet.delete('initGame');
       this.isRunning = true;
 
-      this.gameEventQueue.handleEvent('setPlayerIndex', { index: 1 });
+      this.gameState.initializePlayers({ currentPlayerIndex: 1 });
       this.gameEventQueue.handleEvent('drawCards', {
         turn: 0,
         playerIndex: 0,
-        cards: [
-          { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
-          {
-            id: 4,
-            name: 'Cat',
-            attack: 1,
-            health: 8,
-            energyCost: 1,
-            ability: {
-              name: 'Nap',
-              energyCost: 1,
-              type: 'heal',
-              target: 'self'
-            }
-          },
-          { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
-          { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
-          {
-            id: 4,
-            name: 'Cat',
-            attack: 1,
-            health: 8,
-            energyCost: 1,
-            ability: {
-              name: 'Nap',
-              energyCost: 1,
-              type: 'heal',
-              target: 'self'
-            }
-          }
-        ]
+        cards: [{}, {}, {}, {}, {}]
       });
       this.gameEventQueue.handleEvent('drawCards', {
         turn: 0,
@@ -144,8 +114,15 @@ class Game extends Phaser.Scene {
     }
 
     if (this.isRunning) {
-      this.gameEventQueue.update();
+      this.gameEventQueue.update(this);
     }
+  }
+
+  updateView() {
+    const currentPlayer = this.gameState.getCurrentPlayer();
+    const otherPlayer = this.gameState.getOtherPlayer();
+
+    console.log(currentPlayer, otherPlayer);
   }
 }
 
