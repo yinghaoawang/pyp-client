@@ -1,4 +1,4 @@
-import { getCenter } from '../helpers';
+import { getCenter, toDataURL } from '../helpers';
 
 const COLOR_LIGHT = 0x7b5e57;
 const COLOR_DARK = 0x260e04;
@@ -84,9 +84,33 @@ export default class GameUI {
 
     if (opts?.unknown != true) {
       cardSizer.add(this.createWrappedText(`${card.name}`));
+      cardSizer.add(
+        this.createFwSizerWrapper({
+          width: 75,
+          height: 65,
+          align: 'center',
+          space: {
+            top: 5,
+            bottom: 5
+          }
+        }).add(this.scene.add.sprite(0, 0, card.name).setDisplaySize(65, 65))
+      );
+      console.log(this.scene.textures.get(card.name));
+      if (this.scene.textures.get(card.name).key === '__MISSING') {
+        toDataURL(card.imgUrl, (base64Data) => {
+          this.scene.textures.addBase64(card.name, base64Data);
+        });
+      }
     }
 
     return cardSizer;
+  }
+
+  createFwSizerWrapper(opts) {
+    const sizer = this.scene.rexUI.add.fixWidthSizer({
+      ...opts
+    });
+    return sizer;
   }
 
   createWrappedText(text, textOpts, labelOpts) {

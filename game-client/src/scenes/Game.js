@@ -59,15 +59,37 @@ class Game extends Phaser.Scene {
           playerIndex: 1
         },
         cards: [
-          { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
-          { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
-          { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
+          {
+            id: 12,
+            name: 'Skull',
+            attack: 5,
+            health: 5,
+            energyCost: 1,
+            imgUrl: 'https://i.imgur.com/YziVk4A.png'
+          },
+          {
+            id: 12,
+            name: 'Skull',
+            attack: 5,
+            health: 5,
+            energyCost: 1,
+            imgUrl: 'https://i.imgur.com/YziVk4A.png'
+          },
+          {
+            id: 12,
+            name: 'Skull',
+            attack: 5,
+            health: 5,
+            energyCost: 1,
+            imgUrl: 'https://i.imgur.com/YziVk4A.png'
+          },
           {
             id: 4,
             name: 'Squirthill',
             attack: 1,
             health: 2,
             energyCost: 1,
+            imgUrl: 'https://i.imgur.com/EFzic1w.png',
             ability: {
               name: 'Soak',
               energyCost: 1,
@@ -86,6 +108,7 @@ class Game extends Phaser.Scene {
             attack: 4,
             health: 4,
             energyCost: 2,
+            imgUrl: 'https://i.imgur.com/snOYo6D.png',
             ability: {
               name: 'Shock',
               energyCost: 1,
