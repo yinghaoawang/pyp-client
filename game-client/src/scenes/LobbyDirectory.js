@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import gameState from '../model/gameState';
+import gameState from '../model/userState';
 import levels from '../data/levels';
 import { getCenter } from '../helpers';
 

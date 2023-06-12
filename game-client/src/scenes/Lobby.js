@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { getCenter } from '../helpers';
-import gameState from '../model/gameState';
+import gameState from '../model/userState';
 
 const COLOR_PRIMARY = 0x4e342e;
 const COLOR_LIGHT = 0x7b5e57;
@@ -22,7 +22,7 @@ class Lobby extends Phaser.Scene {
     this.data = data;
 
     this.loadingText = this.add
-      .text(getCenter(this).x, getCenter(this).y, 'Joining Lobby')
+      .text(getCenter(this).x, getCenter(this).y, '')
       .setOrigin(0.5, 0.5)
       .setDepth(4)
       .setVisible(false);
@@ -82,8 +82,6 @@ class Lobby extends Phaser.Scene {
 
 const updateLobby = function (game, sizer, data) {
   sizer.removeAll(true);
-  const scene = game;
-
   const title = game.rexUI.add
     .sizer({
       x: 400,
@@ -101,14 +99,14 @@ const updateLobby = function (game, sizer, data) {
     .addBackground(game.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_HEADER))
     .add(
       game.rexUI.add.label({
-        text: scene.add.text(0, 0, 'Lobby: ' + data.name),
+        text: game.add.text(0, 0, 'Lobby: ' + data.name),
         align: 'left',
         expand: false
       })
     )
     .add(
       game.rexUI.add.label({
-        text: scene.add.text(0, 0, 'Host: ' + data.host.username),
+        text: game.add.text(0, 0, 'Host: ' + data.host.username),
         align: 'left',
         expand: false
       })
@@ -157,7 +155,7 @@ const updateLobby = function (game, sizer, data) {
       )
       .add(
         game.rexUI.add.label({
-          text: scene.add.text(
+          text: game.add.text(
             0,
             0,
             `${isHost ? 'Host: ' : ''}${user.username}`
@@ -168,7 +166,7 @@ const updateLobby = function (game, sizer, data) {
       )
       .add(
         game.rexUI.add.label({
-          text: scene.add.text(
+          text: game.add.text(
             0,
             0,
             !isHost ? (user.isReady ? 'Ready' : 'Not Ready') : ''
@@ -211,7 +209,7 @@ const updateLobby = function (game, sizer, data) {
         10,
         isHost ? (allUsersReady() ? COLOR_LIGHT : COLOR_DISABLED) : COLOR_LIGHT
       ),
-      text: scene.add.text(
+      text: game.add.text(
         0,
         0,
         isHost ? 'Start Game' : !user.isReady ? 'Get Ready' : 'Cancel'
@@ -232,7 +230,7 @@ const updateLobby = function (game, sizer, data) {
         updateLobby(game, sizer, data);
       } else {
         if (allUsersReady()) {
-          console.log('start game');
+          game.scene.start('GameScene');
         } else {
           console.error('All users are not ready');
         }

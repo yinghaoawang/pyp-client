@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
-import gameState from '../model/gameState';
-import levels from '../data/levels';
+import { getCenter } from '../helpers';
+import GameState from '../model/gameState';
+import CardEngine from '../model/cardEngine';
+import GameEventQueue from '../model/GameEventQueue';
 
 class Game extends Phaser.Scene {
   constructor() {
@@ -8,35 +10,165 @@ class Game extends Phaser.Scene {
   }
 
   init(data) {
-    this.levelIndex = data.levelIndex;
-    this.levelData = levels[this.levelIndex];
+    this.gameState = new GameState();
+    this.cardEngine = new CardEngine(this.gameState);
+    this.gameEventQueue = new GameEventQueue(this.gameState, this.cardEngine);
   }
 
   preload() {}
 
   create(data) {
-    this.add.text(10, 10, this.levelData.name, { font: '48px Arial', fill: '#000000' });
+    this.loadingText = this.add
+      .text(getCenter(this).x, getCenter(this).y, '')
+      .setOrigin(0.5, 0.5)
+      .setDepth(4)
+      .setVisible(false);
 
+    this.loadingSet = new Set(['initGame']);
 
-
-    const loseButton = this.add.text(300, 400, 'Lose', { font: '40px Arial', fill: '#000000' });
-    loseButton.setInteractive();
-    loseButton.on('pointerdown', this.failLevel, this);
-    const winButton = this.add.text(500, 400, 'Win', { font: '40px Arial', fill: '#000000' });
-    winButton.setInteractive();
-    winButton.on('pointerdown', this.completeLevel, this);
+    setTimeout(() => {
+      this.loadingSet.delete('initGame');
+      this.gameEventQueue.handleEvent('setPlayerIndex', { index: 1 });
+      this.gameEventQueue.handleEvent('drawCards', {
+        turn: 0,
+        playerIndex: 0,
+        cards: [
+          { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
+          {
+            id: 4,
+            name: 'Cat',
+            attack: 1,
+            health: 8,
+            energyCost: 1,
+            ability: {
+              name: 'Nap',
+              energyCost: 1,
+              type: 'heal',
+              target: 'self'
+            }
+          },
+          { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
+          { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
+          {
+            id: 4,
+            name: 'Cat',
+            attack: 1,
+            health: 8,
+            energyCost: 1,
+            ability: {
+              name: 'Nap',
+              energyCost: 1,
+              type: 'heal',
+              target: 'self'
+            }
+          }
+        ]
+      });
+      this.gameEventQueue.handleEvent('drawCards', {
+        turn: 0,
+        playerIndex: 1,
+        cards: [
+          { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
+          { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
+          { id: 12, name: 'Skull', attack: 5, health: 5, energyCost: 1 },
+          {
+            id: 4,
+            name: 'Squirthill',
+            attack: 1,
+            health: 2,
+            energyCost: 1,
+            ability: {
+              name: 'Soak',
+              energyCost: 1,
+              effects: [
+                {
+                  type: 'applyDebuff',
+                  debuff: 'Wet',
+                  target: 'enemy'
+                }
+              ]
+            }
+          },
+          {
+            id: 5,
+            name: 'Bikachu',
+            attack: 4,
+            health: 4,
+            energyCost: 2,
+            ability: {
+              name: 'Shock',
+              energyCost: 1,
+              effects: [
+                {
+                  type: 'attack',
+                  multiplier: 1.5,
+                  if: {
+                    case: {
+                      target: {
+                        has: {
+                          type: 'debuff'
+                        }
+                      }
+                    },
+                    effect: {
+                      multiplier: 3
+                    }
+                  }
+                },
+                {
+                  type: 'removeDebuff',
+                  debuff: 'Wet',
+                  target: 'enemy'
+                }
+              ]
+            }
+          },
+          {
+            id: 5,
+            name: 'Bikachu',
+            attack: 4,
+            health: 4,
+            energyCost: 2,
+            ability: {
+              name: 'Shock',
+              energyCost: 1,
+              effects: [
+                {
+                  type: 'attack',
+                  multiplier: 1.5,
+                  if: {
+                    case: {
+                      target: {
+                        has: {
+                          type: 'debuff'
+                        }
+                      }
+                    },
+                    effect: {
+                      multiplier: 3
+                    }
+                  }
+                },
+                {
+                  type: 'removeDebuff',
+                  debuff: 'Wet',
+                  target: 'enemy'
+                }
+              ]
+            }
+          }
+        ]
+      });
+    }, 2000);
   }
 
-  failLevel() {
-    this.scene.start('LobbyDirectory');
+  update(time, delta) {
+    if (this.loadingSet.has('initGame')) {
+      this.loadingText.setVisible(true).setText('Initializing Game');
+    } else {
+      this.loadingText.setVisible(false);
+    }
   }
-  
-  completeLevel() {
-    gameState.completeLevel(this.levelIndex);
-    this.scene.start('LobbyDirectory');
-  }
-
-  update(time, delta) {}
 }
 
 export default Game;
