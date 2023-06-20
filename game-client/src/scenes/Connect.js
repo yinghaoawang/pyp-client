@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import config from '../config';
 const { io } = require('socket.io-client');
 
 class Connect extends Phaser.Scene {
@@ -19,7 +20,7 @@ class Connect extends Phaser.Scene {
     });
     this.loadingText.setOriginFromFrame();
 
-    this.socket = io('http://localhost:9898');
+    this.socket = io(config.socketUrl);
   }
 
   update() {

@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = (env, argv) => ({
   entry: {
@@ -34,6 +35,7 @@ module.exports = (env, argv) => ({
     ]
   },
   plugins: [
+    new Dotenv(),
     new webpack.DefinePlugin({
       DEV: argv.mode === 'development',
       WEBGL_RENDERER: true,

@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import gameState from '../model/userState';
-import levels from '../data/levels';
 import { getCenter } from '../helpers';
 
 const COLOR_PRIMARY = 0x4e342e;

@@ -7,6 +7,6 @@ import LobbyScene from './scenes/Lobby';
 import GameScene from './scenes/Game';
 import ConnectScene from './scenes/Connect';
 
-const game = new Phaser.Game(Object.assign(config, {
+const game = new Phaser.Game(Object.assign(config.phaser, {
   scene: [BootScene, PreloaderScene, ConnectScene, LobbyDirectoryScene, LobbyScene, GameScene],
 }));
