@@ -49,6 +49,9 @@ class UserState extends Phaser.Events.EventEmitter {
   }
 }
 
+/**
+ * Singleton
+ */
 const userState = new UserState();
 
 export default userState;

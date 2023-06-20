@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import gameState from '../model/userState';
+import userState from '../model/userState';
 import { getCenter } from '../helpers';
 
 const COLOR_PRIMARY = 0x4e342e;
@@ -78,8 +78,8 @@ class LobbyDirectory extends Phaser.Scene {
         const createdLobby = {
           id: 'jkkdkSLJkl23ljkSKLDJ=42',
           name: lobbyName,
-          host: gameState.getCurrentUser(),
-          users: [gameState.getCurrentUser()]
+          host: userState.getCurrentUser(),
+          users: [userState.getCurrentUser()]
         };
 
         if (lobbyName == 'ready') {

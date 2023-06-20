@@ -4,6 +4,7 @@ import GameState from '../model/gameState';
 import GameEngine from '../model/GameEngine';
 import GameEventQueue from '../model/GameEventQueue';
 import GameUI from '../model/GameUI';
+import eventQueueTestData from '../data/sample/eventQueue';
 
 class Game extends Phaser.Scene {
   constructor() {
@@ -37,135 +38,26 @@ class Game extends Phaser.Scene {
       this.loadingSet.delete('initGame');
       this.isRunning = true;
 
-      this.gameEngine.initializePlayers({ currentPlayerIndex: 0 });
-      this.gameUI.init();
-
-      this.gameEventQueue.handleEvent('drawCards', {
-        metadata: {
-          turn: 0,
-          playerIndex: 1
-        },
-        cards: [
-          { unknown: true },
-          { unknown: true },
-          { unknown: true },
-          { unknown: true },
-          { unknown: true }
-        ]
-      });
-      this.gameEventQueue.handleEvent('drawCards', {
-        metadata: {
-          turn: 0,
-          playerIndex: 0
-        },
-        cards: [
-          {
-            id: 12,
-            name: 'Skull',
-            attack: 5,
-            health: 5,
-            energyCost: 1,
-            imgUrl: 'https://i.imgur.com/YziVk4A.png'
-          },
-          {
-            id: 12,
-            name: 'Skull',
-            attack: 5,
-            health: 5,
-            energyCost: 1,
-            imgUrl: 'https://i.imgur.com/YziVk4A.png'
-          },
-          {
-            id: 12,
-            name: 'Skull',
-            attack: 5,
-            health: 5,
-            energyCost: 1,
-            imgUrl: 'https://i.imgur.com/YziVk4A.png'
-          },
-          {
-            id: 4,
-            name: 'Squirthill',
-            attack: 1,
-            health: 2,
-            energyCost: 1,
-            imgUrl: 'https://i.imgur.com/lkSiJCc.png',
-            ability: {
-              name: 'Soak',
-              energyCost: 1,
-              effects: [
-                {
-                  type: 'applyDebuff',
-                  debuff: 'Wet',
-                  target: 'enemy'
-                }
-              ]
-            }
-          },
-          {
-            id: 5,
-            name: 'Bikachu',
-            attack: 4,
-            health: 4,
-            energyCost: 2,
-            imgUrl: 'https://i.imgur.com/p6LV1tk.png',
-            ability: {
-              name: 'Shock',
-              energyCost: 1,
-              effects: [
-                {
-                  if: {
-                    condition: {
-                      target: {
-                        has: {
-                          type: 'debuff'
-                        }
-                      }
-                    },
-                    effect: {
-                      type: 'attack',
-                      multiplier: 3
-                    }
-                  },
-                  else: {
-                    effect: {
-                      type: 'attack',
-                      multiplier: 1.5
-                    }
-                  }
-                },
-                {
-                  type: 'removeDebuff',
-                  debuff: 'Wet',
-                  target: 'enemy'
-                }
-              ]
-            }
-          }
-        ]
-      });
-
-      this.gameEventQueue.handleEvent('wait', { ms: 500 });
-
-      this.gameEventQueue.handleEvent('startGame', {
-        startingPlayerIndex: 0
-      });
-
-      this.gameEventQueue.handleEvent('drawCard', {
-        metadata: {
-          turn: 1,
-          playerIndex: 0
-        },
-        card: {
-          id: 12,
-          name: 'Skull',
-          attack: 5,
-          health: 5,
-          energyCost: 1,
-          imgUrl: 'https://i.imgur.com/YziVk4A.png'
-        }
-      });
+      this.runTestEvents(eventQueueTestData);
     }, 500);
+  }
+
+  runTestEvents(testData) {
+    for (const packet of testData) {
+      this.processPacket(packet);
+    }
+  }
+
+  processPacket(packet) {
+    switch (packet.eventName) {
+      case 'initPlayer':
+        const { currentPlayerIndex } = packet.payload;
+        this.gameEngine.initializePlayers({ currentPlayerIndex });
+        this.gameUI.init();
+        break;
+      default:
+        this.gameEventQueue.handleEvent(packet.eventName, packet.payload);
+    }
   }
 
   update(time, delta) {
