@@ -64,7 +64,7 @@ class GameEventQueue {
               const { startingPlayerIndex } = payload;
               this.gameEngine.startGame(startingPlayerIndex);
               const isCurrentPlayerTurn = this.gameState.isCurrentPlayerTurn();
-              this.gameUI.displayTurnSwitch(isCurrentPlayerTurn, () => {
+              this.gameUI.displayTurnChange(isCurrentPlayerTurn, () => {
                 resolve();
               });
             }, 10);
