@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import { createButton } from '../helpers/ui';
+import { getCenter } from '../helpers';
 
 class Test extends Phaser.Scene {
   constructor() {
@@ -8,12 +10,12 @@ class Test extends Phaser.Scene {
   preload() {}
 
   create(data) {
-    this.add
-      .text(400, 450, 'Start', {
-        font: '25px'
-      })
-      .setInteractive({ cursor: 'pointer' })
-      .setOrigin(0.5, 0.5);
+    createButton(this, 'Normal Start', {
+      x: getCenter(this).x,
+      y: getCenter(this).y
+    }).on('pointerdown', () => {
+      this.scene.start('PreloaderScene');
+    });
   }
 }
 

@@ -2,10 +2,12 @@ import Phaser from 'phaser';
 import userState from '../model/userState';
 import lobbiesTestData from '../data/sample/lobbies';
 import { getCenter } from '../helpers';
-
-const COLOR_PRIMARY = 0x4e342e;
-const COLOR_LIGHT = 0x7b5e57;
-const COLOR_DARK = 0x260e04;
+import {
+  COLOR_DARK,
+  COLOR_LIGHT,
+  COLOR_PRIMARY,
+  createButton
+} from '../helpers/ui';
 
 class LobbyDirectory extends Phaser.Scene {
   constructor() {
@@ -30,11 +32,11 @@ class LobbyDirectory extends Phaser.Scene {
 
     updatePanel(this, scrollablePanel, this.lobbies);
 
-    const game = this;
+    const scene = this;
     setTimeout(() => {
       this.lobbies = lobbiesTestData;
       this.loadingSet.delete('getLobbies');
-      updatePanel(game, scrollablePanel, this.lobbies);
+      updatePanel(scene, scrollablePanel, this.lobbies);
     }, 500);
 
     this.add.text(5, 580, 'Join or create a lobby');
@@ -45,36 +47,36 @@ class LobbyDirectory extends Phaser.Scene {
         this.scene.start('BootScene');
       });
 
-    this.rexUI.add
-      .buttons({ x: 400, y: 550 })
-      .add(createButton(this, 'Create Lobby'))
-      .layout()
-      .setInteractive({ cursor: 'pointer' })
-      .on('pointerdown', () => {
-        const lobbyName = prompt('Enter a lobby name (test names: "ready" and "notready"):');
-        if (lobbyName?.trim() == '' || lobbyName == null) {
-          return;
-        }
+    createButton(this, 'Create Lobby', {
+      x: 400,
+      y: 550
+    }).on('pointerdown', () => {
+      const lobbyName = prompt(
+        'Enter a lobby name (test names: "ready" and "notready"):'
+      );
+      if (lobbyName?.trim() == '' || lobbyName == null) {
+        return;
+      }
 
-        game.loadingSet.add('createLobby');
-        const createdLobby = {
-          id: 'jkkdkSLJkl23ljkSKLDJ=42',
-          name: lobbyName,
-          host: userState.getCurrentUser(),
-          users: [userState.getCurrentUser()]
-        };
+      scene.loadingSet.add('createLobby');
+      const createdLobby = {
+        id: 'jkkdkSLJkl23ljkSKLDJ=42',
+        name: lobbyName,
+        host: userState.getCurrentUser(),
+        users: [userState.getCurrentUser()]
+      };
 
-        if (lobbyName == 'ready') {
-          createdLobby.users.push({ id: 98, username: 'ready' });
-        } else if (lobbyName == 'notready') {
-          createdLobby.users.push({ id: 99, username: 'notready' });
-        }
+      if (lobbyName == 'ready') {
+        createdLobby.users.push({ id: 98, username: 'ready' });
+      } else if (lobbyName == 'notready') {
+        createdLobby.users.push({ id: 99, username: 'notready' });
+      }
 
-        setTimeout(() => {
-          game.loadingSet.delete('createLobby');
-          game.scene.start('LobbyScene', createdLobby);
-        }, 500);
-      });
+      setTimeout(() => {
+        scene.loadingSet.delete('createLobby');
+        scene.scene.start('LobbyScene', createdLobby);
+      }, 500);
+    });
   }
 
   update(time, delta) {
@@ -94,8 +96,8 @@ class LobbyDirectory extends Phaser.Scene {
   }
 }
 
-const createScrollablePanel = function (game) {
-  return game.rexUI.add
+const createScrollablePanel = function (scene) {
+  return scene.rexUI.add
     .scrollablePanel({
       x: 400,
       y: 265,
@@ -104,17 +106,16 @@ const createScrollablePanel = function (game) {
 
       scrollMode: 0,
 
-      background: game.rexUI.add.roundRectangle(0, 0, 2, 2, 10, COLOR_PRIMARY),
+      background: scene.rexUI.add.roundRectangle(0, 0, 2, 2, 10, COLOR_PRIMARY),
 
       panel: {
-        child: game.rexUI.add.fixWidthSizer({
+        child: scene.rexUI.add.fixWidthSizer({
           space: {
             left: 3,
             right: 3,
             top: 3,
             bottom: 3,
-            item: 8,
-            line: 8
+            line: 15
           }
         }),
 
@@ -124,8 +125,8 @@ const createScrollablePanel = function (game) {
       },
 
       slider: {
-        track: game.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_DARK),
-        thumb: game.rexUI.add
+        track: scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_DARK),
+        thumb: scene.rexUI.add
           .roundRectangle(0, 0, 0, 0, 13, COLOR_LIGHT)
           .setInteractive({ cursor: 'pointer' })
       },
@@ -135,14 +136,13 @@ const createScrollablePanel = function (game) {
         right: 10,
         top: 10,
         bottom: 10,
-
         panel: 10
       }
     })
     .layout();
 };
 
-const updatePanel = function (game, panel, lobbies) {
+const updatePanel = function (scene, panel, lobbies) {
   const sizer = panel.getElement('panel');
 
   if (sizer == null) return null;
@@ -152,58 +152,20 @@ const updatePanel = function (game, panel, lobbies) {
     const lobbyText = `${lobby.name}\nHost: ${lobby.host.username}\n${lobby.users.length} users`;
 
     sizer.add(
-      game.rexUI.add
-        .label({
-          background: game.rexUI.add.roundRectangle(
-            0,
-            0,
-            0,
-            0,
-            15,
-            COLOR_LIGHT
-          ),
-          text: game.add.text(0, 0, lobbyText, {
-            fontSize: 18,
-            color: '#44ff44'
-          }),
-          align: 'left',
-          space: {
-            top: 10,
-            left: 10,
-            right: 10,
-            bottom: 10
-          }
-        })
-        .setInteractive({ cursor: 'pointer' })
-        .on('pointerdown', () => {
-          game.loadingSet.add('joinLobby');
+      createButton(scene, lobbyText, null, null).on('pointerdown', () => {
+        scene.loadingSet.add('joinLobby');
 
-          setTimeout(() => {
-            game.loadingSet.delete('joinLobby');
-            game.scene.start('LobbyScene', lobby);
-          }, 500);
-        })
+        setTimeout(() => {
+          scene.loadingSet.delete('joinLobby');
+          scene.scene.start('LobbyScene', lobby);
+        }, 500);
+      })
     );
     sizer.addNewLine();
   }
 
   panel.layout();
   return panel;
-};
-
-const createButton = function (scene, text) {
-  return scene.rexUI.add.label({
-    width: 100,
-    height: 40,
-    background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, COLOR_LIGHT),
-    text: scene.add.text(0, 0, text, {
-      fontSize: 18
-    }),
-    space: {
-      left: 10,
-      right: 10
-    }
-  });
 };
 
 export default LobbyDirectory;
