@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import userState from '../model/userState';
+import lobbiesTestData from '../data/sample/lobbies';
 import { getCenter } from '../helpers';
 
 const COLOR_PRIMARY = 0x4e342e;
@@ -31,26 +32,7 @@ class LobbyDirectory extends Phaser.Scene {
 
     const game = this;
     setTimeout(() => {
-      this.lobbies = [
-        {
-          name: 'jkKJSKLjkl234lkjzJK',
-          host: { id: 3, username: 'ai94' },
-          users: [
-            { id: 1, username: 'Ronpob' },
-            { id: 2, username: 'Jonthan' },
-            { id: 3, username: 'ai94' },
-            { id: 4, username: 'Someguy' }
-          ]
-        },
-        {
-          name: 'doko',
-          host: { id: 8, username: 'coco' },
-          users: [
-            { id: 8, username: 'coco' },
-            { id: 42, username: 'jojo6879' }
-          ]
-        }
-      ];
+      this.lobbies = lobbiesTestData;
       this.loadingSet.delete('getLobbies');
       updatePanel(game, scrollablePanel, this.lobbies);
     }, 500);
