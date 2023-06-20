@@ -10,30 +10,38 @@ export default class GameUI {
     this.gameEngine = gameEngine;
   }
 
-  displayTurnSwitch(isCurrentPlayerTurn, callback) {
-    this.scene.turnTextSizer.removeAll(true);
-    this.scene.turnTextSizer
-      .add(
-        this.createWrappedText(
-          isCurrentPlayerTurn ? 'Your Turn' : 'Enemy Turn',
-          { fontSize: 18, align: 'center' },
-          { width: 120, height: 50 }
+  async displayTurnChange(isCurrentPlayerTurn, callback) {
+    const init = () => {
+      this.scene.turnTextSizer.removeAll(true);
+      this.scene.turnTextSizer
+        .add(
+          this.createWrappedText(
+            isCurrentPlayerTurn ? 'Your Turn' : 'Enemy Turn',
+            { fontSize: 18, align: 'center' },
+            { width: 120, height: 50 }
+          )
         )
-      )
-      .layout();
-    this.scene.turnTextSizer.setVisible(true);
+        .layout();
+      this.scene.turnTextSizer.setVisible(true);
+    };
 
-    const tween1 = this.scene.tweens.add({
-      targets: this.scene.turnTextSizer,
-      x: { from: -200, to: 400 },
-      ease: 'Linear',
-      duration: 500,
-      yoyo: false,
-      repeat: 0
-    });
+    const slideIn = () => {
+      return new Promise((resolve, reject) => {
+        const tween1 = this.scene.tweens.add({
+          targets: this.scene.turnTextSizer,
+          x: { from: -200, to: 400 },
+          ease: 'Linear',
+          duration: 500,
+          yoyo: false,
+          repeat: 0
+        });
 
-    tween1.on('complete', () => {
-      setTimeout(() => {
+        tween1.on('complete', resolve);
+      });
+    };
+
+    const slideOut = () => {
+      return new Promise((resolve, reject) => {
         const tween2 = this.scene.tweens.add({
           targets: this.scene.turnTextSizer,
           x: { from: 400, to: 800 + 200 },
@@ -43,9 +51,19 @@ export default class GameUI {
           repeat: 0
         });
 
-        tween2.on('complete', callback);
-      }, 750);
-    });
+        tween2.on('complete', resolve);
+      });
+    };
+
+    init();
+    await slideIn();
+
+    const onConfirmClick = async () => {
+      await slideOut();
+      this.scene.input.off('pointerdown', onConfirmClick);
+      callback();
+    };
+    this.scene.input.on('pointerdown', onConfirmClick);
   }
 
   init() {
@@ -146,9 +164,15 @@ export default class GameUI {
         }).add(this.scene.add.sprite(0, 0, card.name).setDisplaySize(65, 65))
       );
       if (this.scene.textures.get(card.name).key === '__MISSING') {
-        toDataURL(card.imgUrl, (base64Data) => {
-          this.scene.textures.addBase64(card.name, base64Data);
-        });
+        if (!this.scene.textures.exists(card.name)) {
+          toDataURL(card.imgUrl, (base64Data) => {
+            this.scene.textures.addBase64(card.name, base64Data);
+          });
+        } else {
+          console.error(
+            `Could not create texture for ${card.name} because it already exists.`
+          );
+        }
       }
     }
 

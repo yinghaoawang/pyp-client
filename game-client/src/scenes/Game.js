@@ -89,7 +89,7 @@ class Game extends Phaser.Scene {
             attack: 1,
             health: 2,
             energyCost: 1,
-            imgUrl: 'https://i.imgur.com/EFzic1w.png',
+            imgUrl: 'https://i.imgur.com/lkSiJCc.png',
             ability: {
               name: 'Soak',
               energyCost: 1,
@@ -108,7 +108,7 @@ class Game extends Phaser.Scene {
             attack: 4,
             health: 4,
             energyCost: 2,
-            imgUrl: 'https://i.imgur.com/snOYo6D.png',
+            imgUrl: 'https://i.imgur.com/p6LV1tk.png',
             ability: {
               name: 'Shock',
               energyCost: 1,
