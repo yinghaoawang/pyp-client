@@ -13,7 +13,11 @@ class Boot extends Phaser.Scene {
   }
 
   create(data) {
-    this.scene.start('PreloaderScene');
+    if (process.env.NODE_ENV === 'development') {
+      this.scene.start('TestScene');
+    } else {
+      this.scene.start('PreloaderScene');
+    }
   }
 }
 
