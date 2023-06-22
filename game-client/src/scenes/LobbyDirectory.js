@@ -152,7 +152,7 @@ const updatePanel = function (scene, panel, lobbies) {
     const lobbyText = `${lobby.name}\nHost: ${lobby.host.username}\n${lobby.users.length} users`;
 
     sizer.add(
-      createContainedButton(scene, lobbyText, null, null).on('pointerdown', () => {
+      createContainedButton(scene, lobbyText).on('pointerdown', () => {
         scene.loadingSet.add('joinLobby');
 
         setTimeout(() => {

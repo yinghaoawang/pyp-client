@@ -1,7 +1,5 @@
 import { getCenter, toDataURL } from '../helpers';
-
-const COLOR_LIGHT = 0x7b5e57;
-const COLOR_DARK = 0x260e04;
+import { COLOR_DARK, COLOR_FIELD, COLOR_LIGHT } from '../helpers/ui';
 
 export default class GameUI {
   constructor(scene, gameState, gameEngine) {
@@ -82,52 +80,55 @@ export default class GameUI {
     this.scene.otherPlayerHandSizer = this.scene.rexUI.add
       .fixWidthSizer({
         x: getCenter(this.scene).x,
-        y: 50,
+        y: 70,
         width: 600,
-        height: 100,
+        height: 120,
+        orientation: 'x',
         space: {
           left: 3,
           right: 3,
-          top: 3,
-          bottom: 3,
+          top: 10,
+          bottom: 10,
           item: 8
         },
         align: 'center'
       })
-      .layout()
-      .drawBounds(this.scene.add.graphics(), 0xff0000);
+      .addBackground(
+        this.scene.rexUI.add.roundRectangle(0, 0, 10, 10, 5, COLOR_FIELD)
+      )
+      .layout();
 
     this.scene.currentPlayerHandSizer = this.scene.rexUI.add
       .fixWidthSizer({
         x: getCenter(this.scene).x,
-        y: 550,
+        y: 530,
         width: 600,
-        height: 100,
+        height: 120,
         space: {
           left: 3,
           right: 3,
-          top: 3,
-          bottom: 3,
+          top: 10,
+          bottom: 10,
           item: 8
         },
         align: 'center'
       })
-      .layout()
-      .drawBounds(this.scene.add.graphics(), 0xff0000);
+      .addBackground(
+        this.scene.rexUI.add.roundRectangle(0, 0, 10, 10, 5, COLOR_FIELD)
+      )
+      .layout();
 
     this.scene.otherPlayerDeckSizer = this.createCardSizer(null, {
       unknown: true
     })
-      .setPosition(50, 50)
-      .layout()
-      .drawBounds(this.scene.add.graphics(), 0xff0000);
+      .setPosition(50, 60)
+      .layout();
 
     this.scene.currentPlayerDeckSizer = this.createCardSizer(null, {
       unknown: true
     })
-      .setPosition(750, 550)
-      .layout()
-      .drawBounds(this.scene.add.graphics(), 0xff0000);
+      .setPosition(750, 540)
+      .layout();
   }
 
   createCardSizer(card, opts) {

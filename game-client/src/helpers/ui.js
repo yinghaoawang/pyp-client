@@ -1,12 +1,21 @@
+// General
 export const COLOR_PRIMARY = 0x4e342e;
 export const COLOR_LIGHT = 0x7b5e57;
 export const COLOR_DARK = 0x260e04;
+
+// Game
+export const COLOR_FIELD = 0x999999;
+
+// Lobby
+export const COLOR_HEADER = 0x482f26;
+export const COLOR_HOST = 0x8b2f26;
+export const COLOR_DISABLED = 0x444444;
 
 /** If you don't know what this is, you should probably use createContainedButton */
 export const createButtonLabel = (
   scene,
   text,
-  opts = { width: 100, height: 40}
+  opts = { width: 100, height: 40 }
 ) => {
   return scene.rexUI.add
     .label({
@@ -53,5 +62,6 @@ export const createContainedButton = (
       expand: true,
       ...opts
     })
-    .layout();
+    .layout()
+    .setInteractive({ cursor: 'pointer' });
 };

@@ -1,13 +1,13 @@
 import Phaser from 'phaser';
 import { getCenter } from '../helpers';
 import gameState from '../model/userState';
-
-const COLOR_PRIMARY = 0x4e342e;
-const COLOR_LIGHT = 0x7b5e57;
-const COLOR_DARK = 0x260e04;
-const COLOR_HEADER = 0x482f26;
-const COLOR_HOST = 0x8b2f26;
-const COLOR_DISABLED = 0x444444;
+import {
+  COLOR_DARK,
+  COLOR_DISABLED,
+  COLOR_HEADER,
+  COLOR_HOST,
+  COLOR_LIGHT
+} from '../helpers/ui';
 
 class Lobby extends Phaser.Scene {
   constructor() {
@@ -48,28 +48,28 @@ class Lobby extends Phaser.Scene {
       }
 
       sizer = this.rexUI.add
-      .fixWidthSizer({
-        x: getCenter(this).x,
-        y: getCenter(this).y,
-        width: 500,
-        height: 500,
-        space: {
-          left: 3,
-          right: 3,
-          top: 3,
-          bottom: 3,
-          item: 8,
-          line: 8
-        },
-        align: 'left'
-      })
-      .addBackground(
-        this.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_DARK)
-      );
+        .fixWidthSizer({
+          x: getCenter(this).x,
+          y: getCenter(this).y,
+          width: 500,
+          height: 500,
+          space: {
+            left: 3,
+            right: 3,
+            top: 3,
+            bottom: 3,
+            item: 8,
+            line: 8
+          },
+          align: 'left'
+        })
+        .addBackground(
+          this.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_DARK)
+        );
 
       updateLobby(this, sizer, data);
     }, 500);
-  } 
+  }
 
   update(time, delta) {
     if (this.loadingSet.has('getLobby')) {
@@ -194,7 +194,7 @@ const updateLobby = function (game, sizer, data) {
   }
 
   function createUserButton() {
-    const user = data.users.find(u => u.id === gameState.getCurrentUser().id);
+    const user = data.users.find((u) => u.id === gameState.getCurrentUser().id);
     if (user == null) {
       throw new Error('Current user not found in lobby');
     }
