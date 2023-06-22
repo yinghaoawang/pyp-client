@@ -6,7 +6,8 @@ import {
   COLOR_DARK,
   COLOR_LIGHT,
   COLOR_PRIMARY,
-  createContainedButton
+  createContainedButton,
+  createFwSizerWrapper
 } from '../helpers/ui';
 
 class LobbyDirectory extends Phaser.Scene {
@@ -109,7 +110,7 @@ const createScrollablePanel = function (scene) {
       background: scene.rexUI.add.roundRectangle(0, 0, 2, 2, 10, COLOR_PRIMARY),
 
       panel: {
-        child: scene.rexUI.add.fixWidthSizer({
+        child: createFwSizerWrapper(scene, {
           space: {
             left: 3,
             right: 3,

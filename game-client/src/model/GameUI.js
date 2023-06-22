@@ -1,5 +1,10 @@
 import { getCenter, toDataURL } from '../helpers';
-import { COLOR_DARK, COLOR_FIELD, COLOR_LIGHT } from '../helpers/ui';
+import {
+  COLOR_DARK,
+  COLOR_CARD_ZONE,
+  COLOR_LIGHT,
+  createFwSizerWrapper
+} from '../helpers/ui';
 
 export default class GameUI {
   constructor(scene, gameState, gameEngine) {
@@ -57,15 +62,15 @@ export default class GameUI {
     await slideIn();
 
     const onConfirmClick = async () => {
-      await slideOut();
       this.scene.input.off('pointerdown', onConfirmClick);
+      await slideOut();
       callback();
     };
     this.scene.input.on('pointerdown', onConfirmClick);
   }
 
   init() {
-    this.scene.turnTextSizer = this.createFwSizerWrapper({
+    this.scene.turnTextSizer = createFwSizerWrapper(this, {
       width: 120,
       height: 50,
       align: 'center'
@@ -77,44 +82,42 @@ export default class GameUI {
       .layout()
       .setVisible(false);
 
-    this.scene.otherPlayerHandSizer = this.scene.rexUI.add
-      .fixWidthSizer({
-        x: getCenter(this.scene).x,
-        y: 70,
-        width: 600,
-        height: 120,
-        orientation: 'x',
-        space: {
-          left: 3,
-          right: 3,
-          top: 10,
-          bottom: 10,
-          item: 8
-        },
-        align: 'center'
-      })
+    this.scene.otherPlayerHandSizer = createFwSizerWrapper(this, {
+      x: getCenter(this.scene).x,
+      y: 70,
+      width: 600,
+      height: 120,
+      orientation: 'x',
+      space: {
+        left: 3,
+        right: 3,
+        top: 10,
+        bottom: 10,
+        item: 8
+      },
+      align: 'center'
+    })
       .addBackground(
-        this.scene.rexUI.add.roundRectangle(0, 0, 10, 10, 5, COLOR_FIELD)
+        this.scene.rexUI.add.roundRectangle(0, 0, 10, 10, 5, COLOR_CARD_ZONE)
       )
       .layout();
 
-    this.scene.currentPlayerHandSizer = this.scene.rexUI.add
-      .fixWidthSizer({
-        x: getCenter(this.scene).x,
-        y: 530,
-        width: 600,
-        height: 120,
-        space: {
-          left: 3,
-          right: 3,
-          top: 10,
-          bottom: 10,
-          item: 8
-        },
-        align: 'center'
-      })
+    this.scene.currentPlayerHandSizer = createFwSizerWrapper(this, {
+      x: getCenter(this.scene).x,
+      y: 530,
+      width: 600,
+      height: 120,
+      space: {
+        left: 3,
+        right: 3,
+        top: 10,
+        bottom: 10,
+        item: 8
+      },
+      align: 'center'
+    })
       .addBackground(
-        this.scene.rexUI.add.roundRectangle(0, 0, 10, 10, 5, COLOR_FIELD)
+        this.scene.rexUI.add.roundRectangle(0, 0, 10, 10, 5, COLOR_CARD_ZONE)
       )
       .layout();
 
@@ -134,27 +137,25 @@ export default class GameUI {
   createCardSizer(card, opts) {
     if (card == null && opts?.unknown != true) throw new Error('Card is null');
 
-    const cardSizer = this.scene.rexUI.add
-      .fixWidthSizer({
-        width: 75,
-        height: 100,
-        align: 'left'
-      })
-      .addBackground(
-        this.scene.rexUI.add.roundRectangle(
-          0,
-          0,
-          0,
-          0,
-          5,
-          opts?.unknown === true ? COLOR_DARK : COLOR_LIGHT
-        )
-      );
+    const cardSizer = createFwSizerWrapper(this, {
+      width: 75,
+      height: 100,
+      align: 'left'
+    }).addBackground(
+      this.scene.rexUI.add.roundRectangle(
+        0,
+        0,
+        0,
+        0,
+        5,
+        opts?.unknown === true ? COLOR_DARK : COLOR_LIGHT
+      )
+    );
 
     if (opts?.unknown != true) {
       cardSizer.add(this.createWrappedText(`${card.name}`));
       cardSizer.add(
-        this.createFwSizerWrapper({
+        createFwSizerWrapper(this, {
           width: 75,
           height: 65,
           align: 'center',
@@ -178,13 +179,6 @@ export default class GameUI {
     }
 
     return cardSizer;
-  }
-
-  createFwSizerWrapper(opts) {
-    const sizer = this.scene.rexUI.add.fixWidthSizer({
-      ...opts
-    });
-    return sizer;
   }
 
   createWrappedText(text, textOpts, labelOpts) {

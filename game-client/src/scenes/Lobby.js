@@ -6,7 +6,8 @@ import {
   COLOR_DISABLED,
   COLOR_HEADER,
   COLOR_HOST,
-  COLOR_LIGHT
+  COLOR_LIGHT,
+  createFwSizerWrapper
 } from '../helpers/ui';
 
 class Lobby extends Phaser.Scene {
@@ -47,25 +48,23 @@ class Lobby extends Phaser.Scene {
         this.data.users.find((u) => u.username === 'ready').isReady = true;
       }
 
-      sizer = this.rexUI.add
-        .fixWidthSizer({
-          x: getCenter(this).x,
-          y: getCenter(this).y,
-          width: 500,
-          height: 500,
-          space: {
-            left: 3,
-            right: 3,
-            top: 3,
-            bottom: 3,
-            item: 8,
-            line: 8
-          },
-          align: 'left'
-        })
-        .addBackground(
-          this.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_DARK)
-        );
+      sizer = createFwSizerWrapper(this, {
+        x: getCenter(this).x,
+        y: getCenter(this).y,
+        width: 500,
+        height: 500,
+        space: {
+          left: 3,
+          right: 3,
+          top: 3,
+          bottom: 3,
+          item: 8,
+          line: 8
+        },
+        align: 'left'
+      }).addBackground(
+        this.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_DARK)
+      );
 
       updateLobby(this, sizer, data);
     }, 500);
@@ -80,9 +79,9 @@ class Lobby extends Phaser.Scene {
   }
 }
 
-const updateLobby = function (game, sizer, data) {
+const updateLobby = function (scene, sizer, data) {
   sizer.removeAll(true);
-  const title = game.rexUI.add
+  const title = scene.rexUI.add
     .sizer({
       x: 400,
       y: 300,
@@ -96,17 +95,19 @@ const updateLobby = function (game, sizer, data) {
         bottom: 10
       }
     })
-    .addBackground(game.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_HEADER))
+    .addBackground(
+      scene.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_HEADER)
+    )
     .add(
-      game.rexUI.add.label({
-        text: game.add.text(0, 0, 'Lobby: ' + data.name),
+      scene.rexUI.add.label({
+        text: scene.add.text(0, 0, 'Lobby: ' + data.name),
         align: 'left',
         expand: false
       })
     )
     .add(
-      game.rexUI.add.label({
-        text: game.add.text(0, 0, 'Host: ' + data.host.username),
+      scene.rexUI.add.label({
+        text: scene.add.text(0, 0, 'Host: ' + data.host.username),
         align: 'left',
         expand: false
       })
@@ -127,7 +128,7 @@ const updateLobby = function (game, sizer, data) {
     const isCurrentUser = gameState.getCurrentUser().username === user.username;
     const isHost = data.host.username === user.username;
 
-    const userItem = game.rexUI.add
+    const userItem = scene.rexUI.add
       .gridSizer({
         x: 400,
         y: 300,
@@ -144,7 +145,7 @@ const updateLobby = function (game, sizer, data) {
         }
       })
       .addBackground(
-        game.rexUI.add.roundRectangle(
+        scene.rexUI.add.roundRectangle(
           0,
           0,
           10,
@@ -154,8 +155,8 @@ const updateLobby = function (game, sizer, data) {
         )
       )
       .add(
-        game.rexUI.add.label({
-          text: game.add.text(
+        scene.rexUI.add.label({
+          text: scene.add.text(
             0,
             0,
             `${isHost ? 'Host: ' : ''}${user.username}`
@@ -165,8 +166,8 @@ const updateLobby = function (game, sizer, data) {
         { expand: true }
       )
       .add(
-        game.rexUI.add.label({
-          text: game.add.text(
+        scene.rexUI.add.label({
+          text: scene.add.text(
             0,
             0,
             !isHost ? (user.isReady ? 'Ready' : 'Not Ready') : ''
@@ -178,7 +179,7 @@ const updateLobby = function (game, sizer, data) {
     if (isCurrentUser) {
       const userButton = createUserButton();
       userItem.add(
-        game.rexUI.add
+        scene.rexUI.add
           .sizer({
             x: 400,
             y: 300,
@@ -200,8 +201,8 @@ const updateLobby = function (game, sizer, data) {
     }
     const isHost = data.host.username === user.username;
 
-    const userButton = game.rexUI.add.label({
-      background: game.rexUI.add.roundRectangle(
+    const userButton = scene.rexUI.add.label({
+      background: scene.rexUI.add.roundRectangle(
         0,
         0,
         0,
@@ -209,7 +210,7 @@ const updateLobby = function (game, sizer, data) {
         10,
         isHost ? (allUsersReady() ? COLOR_LIGHT : COLOR_DISABLED) : COLOR_LIGHT
       ),
-      text: game.add.text(
+      text: scene.add.text(
         0,
         0,
         isHost ? 'Start Game' : !user.isReady ? 'Get Ready' : 'Cancel'
@@ -227,10 +228,10 @@ const updateLobby = function (game, sizer, data) {
     userButton.setInteractive({ cursor: 'pointer' }).on('pointerdown', () => {
       if (!isHost) {
         user.isReady = !user.isReady;
-        updateLobby(game, sizer, data);
+        updateLobby(scene, sizer, data);
       } else {
         if (allUsersReady()) {
-          game.scene.start('GameScene');
+          scene.scene.start('GameScene');
         } else {
           console.error('All users are not ready');
         }

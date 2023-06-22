@@ -4,12 +4,21 @@ export const COLOR_LIGHT = 0x7b5e57;
 export const COLOR_DARK = 0x260e04;
 
 // Game
-export const COLOR_FIELD = 0x999999;
+export const COLOR_CARD_ZONE = 0x999999;
 
 // Lobby
 export const COLOR_HEADER = 0x482f26;
 export const COLOR_HOST = 0x8b2f26;
 export const COLOR_DISABLED = 0x444444;
+
+export const createFwSizerWrapper = (scene, opts) => {
+  const rexUI = scene?.rexUI || scene?.scene?.rexUI;
+  if (rexUI == null) throw new Error('Could not find scene.rexUI');
+  const sizer = rexUI.add.fixWidthSizer({
+    ...opts
+  });
+  return sizer;
+};
 
 /** If you don't know what this is, you should probably use createContainedButton */
 export const createButtonLabel = (
