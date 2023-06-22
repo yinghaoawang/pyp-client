@@ -1,5 +1,9 @@
 import Phaser from 'phaser';
-import { createButton } from '../helpers/ui';
+import {
+  COLOR_LIGHT,
+  createButtonLabel,
+  createContainedButton
+} from '../helpers/ui';
 import { getCenter } from '../helpers';
 
 class Test extends Phaser.Scene {
@@ -10,12 +14,23 @@ class Test extends Phaser.Scene {
   preload() {}
 
   create(data) {
-    createButton(this, 'Normal Start', {
-      x: getCenter(this).x,
-      y: getCenter(this).y
-    }).on('pointerdown', () => {
-      this.scene.start('PreloaderScene');
-    });
+    var buttons = this.rexUI.add
+      .buttons({
+        x: getCenter(this).x,
+        y: getCenter(this).y,
+        width: 350,
+        orientation: 'y',
+        space: { item: 8 },
+        buttons: [
+          createButtonLabel(this, 'Normal Start').on('pointerdown', () => {
+            this.scene.start('PreloaderScene');
+          }),
+          createButtonLabel(this, 'Test Game Start').on('pointerdown', () => {
+            this.scene.start('GameScene');
+          })
+        ]
+      })
+      .layout();
   }
 }
 

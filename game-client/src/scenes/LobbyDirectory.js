@@ -6,7 +6,7 @@ import {
   COLOR_DARK,
   COLOR_LIGHT,
   COLOR_PRIMARY,
-  createButton
+  createContainedButton
 } from '../helpers/ui';
 
 class LobbyDirectory extends Phaser.Scene {
@@ -47,7 +47,7 @@ class LobbyDirectory extends Phaser.Scene {
         this.scene.start('BootScene');
       });
 
-    createButton(this, 'Create Lobby', {
+    createContainedButton(this, 'Create Lobby', {
       x: 400,
       y: 550
     }).on('pointerdown', () => {
@@ -152,7 +152,7 @@ const updatePanel = function (scene, panel, lobbies) {
     const lobbyText = `${lobby.name}\nHost: ${lobby.host.username}\n${lobby.users.length} users`;
 
     sizer.add(
-      createButton(scene, lobbyText, null, null).on('pointerdown', () => {
+      createContainedButton(scene, lobbyText, null, null).on('pointerdown', () => {
         scene.loadingSet.add('joinLobby');
 
         setTimeout(() => {

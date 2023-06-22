@@ -2,11 +2,11 @@ export const COLOR_PRIMARY = 0x4e342e;
 export const COLOR_LIGHT = 0x7b5e57;
 export const COLOR_DARK = 0x260e04;
 
-/** If you don't know what this is, you should probably use createButton */
+/** If you don't know what this is, you should probably use createContainedButton */
 export const createButtonLabel = (
   scene,
   text,
-  opts = { width: 100, height: 40 }
+  opts = { width: 100, height: 40}
 ) => {
   return scene.rexUI.add
     .label({
@@ -27,13 +27,15 @@ export const createButtonLabel = (
         right: 20,
         bottom: 15
       },
+      align: 'center',
       ...opts
     })
-    .layout();
+    .layout()
+    .setInteractive({ cursor: 'pointer' });
 };
 
 /** Creates a single button label in a button container */
-export const createButton = (
+export const createContainedButton = (
   scene,
   text,
   opts = { x: 400, y: 200, orientation: 'y' },
@@ -43,13 +45,13 @@ export const createButton = (
     .buttons({
       buttons: [
         createButtonLabel(scene, text, {
-          width: buttonOpts,
-          height: buttonOpts,
+          width: opts.width,
+          height: opts.height,
           ...buttonOpts
         })
       ],
+      expand: true,
       ...opts
     })
-    .layout()
-    .setInteractive({ cursor: 'pointer' });
+    .layout();
 };
