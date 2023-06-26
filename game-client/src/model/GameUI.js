@@ -1,3 +1,4 @@
+import { getCard } from '../data/sample/cards';
 import { getCenter, toDataURL } from '../helpers';
 import {
   COLOR_DARK,
@@ -180,7 +181,6 @@ export default class GameUI {
       } catch (error) {
         console.error('Could not load texture', error);
       }
-      
     }
 
     return cardSizer;

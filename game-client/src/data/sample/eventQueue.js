@@ -1,3 +1,5 @@
+import { getBlankCard, getCard } from './cards';
+
 const data = [
   {
     eventName: 'initPlayer',
@@ -15,11 +17,11 @@ const data = [
         playerIndex: 1
       },
       cards: [
-        { unknown: true },
-        { unknown: true },
-        { unknown: true },
-        { unknown: true },
-        { unknown: true }
+        getBlankCard(),
+        getBlankCard(),
+        getBlankCard(),
+        getBlankCard(),
+        getBlankCard()
       ]
     }
   },
@@ -31,91 +33,7 @@ const data = [
         turn: 0,
         playerIndex: 0
       },
-      cards: [
-        {
-          id: 12,
-          name: 'Skull',
-          attack: 5,
-          health: 5,
-          energyCost: 1,
-          imgUrl: 'https://i.imgur.com/YziVk4A.png'
-        },
-        {
-          id: 12,
-          name: 'Skull',
-          attack: 5,
-          health: 5,
-          energyCost: 1,
-          imgUrl: 'https://i.imgur.com/YziVk4A.png'
-        },
-        {
-          id: 12,
-          name: 'Skull',
-          attack: 5,
-          health: 5,
-          energyCost: 1,
-          imgUrl: 'https://i.imgur.com/YziVk4A.png'
-        },
-        {
-          id: 4,
-          name: 'Squirthill',
-          attack: 1,
-          health: 2,
-          energyCost: 1,
-          imgUrl: 'https://i.imgur.com/lkSiJCc.png',
-          ability: {
-            name: 'Soak',
-            energyCost: 1,
-            effects: [
-              {
-                type: 'applyDebuff',
-                debuff: 'Wet',
-                target: 'enemy'
-              }
-            ]
-          }
-        },
-        {
-          id: 5,
-          name: 'Bikachu',
-          attack: 4,
-          health: 4,
-          energyCost: 2,
-          imgUrl: 'https://i.imgur.com/p6LV1tk.png',
-          ability: {
-            name: 'Shock',
-            energyCost: 1,
-            effects: [
-              {
-                if: {
-                  condition: {
-                    target: {
-                      has: {
-                        type: 'debuff'
-                      }
-                    }
-                  },
-                  effect: {
-                    type: 'attack',
-                    multiplier: 3
-                  }
-                },
-                else: {
-                  effect: {
-                    type: 'attack',
-                    multiplier: 1.5
-                  }
-                }
-              },
-              {
-                type: 'removeDebuff',
-                debuff: 'Wet',
-                target: 'enemy'
-              }
-            ]
-          }
-        }
-      ]
+      cards: [getCard(12), getCard(12), getCard(12), getCard(4), getCard(5)]
     }
   },
   {
@@ -137,14 +55,7 @@ const data = [
         turn: 1,
         playerIndex: 0
       },
-      card: {
-        id: 12,
-        name: 'Skull',
-        attack: 5,
-        health: 5,
-        energyCost: 1,
-        imgUrl: 'https://i.imgur.com/YziVk4A.png'
-      }
+      card: getCard(12)
     }
   }
 ];
