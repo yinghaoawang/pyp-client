@@ -7,6 +7,8 @@ import {
   COLOR_HEADER,
   COLOR_HOST,
   COLOR_LIGHT,
+  createLabel,
+  createButtonLabel,
   createFwSizerWrapper
 } from '../helpers/ui';
 
@@ -81,33 +83,28 @@ class Lobby extends Phaser.Scene {
 
 const updateLobby = function (scene, sizer, data) {
   sizer.removeAll(true);
-  const title = scene.rexUI.add
-    .sizer({
-      x: 400,
-      y: 300,
-      width: 500,
-      orientation: 'y',
-      space: {
-        row: 5,
-        left: 20,
-        right: 20,
-        top: 10,
-        bottom: 10
-      }
-    })
-    .addBackground(
-      scene.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_HEADER)
-    )
+  const title = createFwSizerWrapper(scene, {
+    x: 400,
+    y: 300,
+    width: 500,
+    orientation: 'y',
+    space: {
+      row: 5,
+      left: 20,
+      right: 20,
+      top: 10,
+      bottom: 10
+    }
+  })
     .add(
-      scene.rexUI.add.label({
-        text: scene.add.text(0, 0, 'Lobby: ' + data.name),
+      createLabel(scene, 'Lobby: ' + data.name, {
         align: 'left',
         expand: false
       })
     )
+    .addNewLine()
     .add(
-      scene.rexUI.add.label({
-        text: scene.add.text(0, 0, 'Host: ' + data.host.username),
+      createLabel(scene, 'Host: ' + data.host.username, {
         align: 'left',
         expand: false
       })
@@ -155,73 +152,57 @@ const updateLobby = function (scene, sizer, data) {
         )
       )
       .add(
-        scene.rexUI.add.label({
-          text: scene.add.text(
-            0,
-            0,
-            `${isHost ? 'Host: ' : ''}${user.username}`
-          ),
+        createLabel(scene, `${isHost ? 'Host: ' : ''}${user.username}`, {
           align: 'left'
         }),
         { expand: true }
       )
       .add(
-        scene.rexUI.add.label({
-          text: scene.add.text(
-            0,
-            0,
-            !isHost ? (user.isReady ? 'Ready' : 'Not Ready') : ''
-          ),
-          align: 'right'
-        }),
+        createLabel(
+          scene,
+          !isHost ? (user.isReady ? 'Ready' : 'Not Ready') : '',
+          {
+            align: 'right'
+          }
+        ),
         { expand: true }
       );
     if (isCurrentUser) {
-      const userButton = createUserButton();
+      const userButtonLabel = createUserButtonLabel();
       userItem.add(
-        scene.rexUI.add
-          .sizer({
-            x: 400,
-            y: 300,
-            space: {
-              top: 10
-            }
-          })
-
-          .add(userButton)
+        createFwSizerWrapper(scene, {
+          x: 400,
+          y: 300,
+          space: {
+            top: 10
+          }
+        }).add(userButtonLabel)
       );
     }
     sizer.add(userItem);
   }
 
-  function createUserButton() {
+  function createUserButtonLabel() {
     const user = data.users.find((u) => u.id === gameState.getCurrentUser().id);
     if (user == null) {
       throw new Error('Current user not found in lobby');
     }
     const isHost = data.host.username === user.username;
 
-    const userButton = scene.rexUI.add.label({
-      background: scene.rexUI.add.roundRectangle(
-        0,
-        0,
-        0,
-        0,
-        10,
-        isHost ? (allUsersReady() ? COLOR_LIGHT : COLOR_DISABLED) : COLOR_LIGHT
-      ),
-      text: scene.add.text(
-        0,
-        0,
-        isHost ? 'Start Game' : !user.isReady ? 'Get Ready' : 'Cancel'
-      ),
-      space: {
-        top: 10,
-        left: 10,
-        right: 10,
-        bottom: 10
-      }
-    });
+    const userButton = createButtonLabel(
+      scene,
+      isHost ? 'Start Game' : !user.isReady ? 'Get Ready' : 'Cancel',
+      {
+        space: {
+          top: 10,
+          left: 10,
+          right: 10,
+          bottom: 10
+        }
+      },
+      null,
+      isHost ? (allUsersReady() ? COLOR_LIGHT : COLOR_DISABLED) : COLOR_LIGHT
+    );
 
     if (isHost && !allUsersReady()) return userButton;
 

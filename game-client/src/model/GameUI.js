@@ -165,17 +165,22 @@ export default class GameUI {
           }
         }).add(this.scene.add.sprite(0, 0, card.name).setDisplaySize(65, 65))
       );
-      if (this.scene.textures.get(card.name).key === '__MISSING') {
-        if (!this.scene.textures.exists(card.name)) {
-          toDataURL(card.imgUrl, (base64Data) => {
-            this.scene.textures.addBase64(card.name, base64Data);
-          });
-        } else {
-          console.error(
-            `Could not create texture for ${card.name} because it already exists.`
-          );
+      try {
+        if (this.scene.textures.get(card.name).key === '__MISSING') {
+          if (!this.scene.textures.exists(card.name)) {
+            toDataURL(card.imgUrl, (base64Data) => {
+              this.scene.textures.addBase64(card.name, base64Data);
+            });
+          } else {
+            console.error(
+              `Could not create texture for ${card.name} because it already exists.`
+            );
+          }
         }
+      } catch (error) {
+        console.error('Could not load texture', error);
       }
+      
     }
 
     return cardSizer;

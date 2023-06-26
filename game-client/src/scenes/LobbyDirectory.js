@@ -6,6 +6,7 @@ import {
   COLOR_DARK,
   COLOR_LIGHT,
   COLOR_PRIMARY,
+  COLOR_SECONDARY,
   createContainedButton,
   createFwSizerWrapper
 } from '../helpers/ui';
@@ -107,7 +108,7 @@ const createScrollablePanel = function (scene) {
 
       scrollMode: 0,
 
-      background: scene.rexUI.add.roundRectangle(0, 0, 2, 2, 10, COLOR_PRIMARY),
+      background: scene.rexUI.add.roundRectangle(0, 0, 2, 2, 10, COLOR_SECONDARY),
 
       panel: {
         child: createFwSizerWrapper(scene, {
@@ -153,12 +154,20 @@ const updatePanel = function (scene, panel, lobbies) {
     const lobbyText = `${lobby.name}\nHost: ${lobby.host.username}\n${lobby.users.length} users`;
 
     sizer.add(
-      createContainedButton(scene, lobbyText).on('pointerdown', () => {
+      createContainedButton(
+        scene,
+        lobbyText,
+        {
+          width: panel.width
+        },
+        { align: 'left' },
+        { color: '#000022' }
+      ).on('pointerdown', () => {
         scene.loadingSet.add('joinLobby');
 
         setTimeout(() => {
           scene.loadingSet.delete('joinLobby');
-          scene.scene.start('LobbyScene', lobby);
+          scene.scene.start('LobbyScene', lobby); 
         }, 500);
       })
     );
