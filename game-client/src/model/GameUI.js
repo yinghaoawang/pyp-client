@@ -32,9 +32,8 @@ class CardDetails extends RexPlugins.UI.FixWidthSizer {
     console.log(this);
   }
 
-  async setCard(card) {
+  setCard(card) {
     this.card = card;
-    await loadTexture(this.scene, card);
     this.update();
   }
 
@@ -247,7 +246,7 @@ export default class GameUI {
     this.scene.input.on('pointerdown', onConfirmClick);
   }
 
-  async init() {
+  init() {
     this.scene.turnTextSizer = createFwSizerWrapper(this, {
       width: 120,
       height: 50,
@@ -312,7 +311,7 @@ export default class GameUI {
       .layout();
 
     this.scene.cardDetails = new CardDetails(this.scene);
-    await this.scene.cardDetails.setCard(getCard(5));
+    this.scene.cardDetails.setCard(getCard(5));
     this.scene.cardDetails.layout();
   }
 
