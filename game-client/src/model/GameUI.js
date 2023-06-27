@@ -1,11 +1,176 @@
 import { getCard } from '../data/sample/cards';
-import { getCenter, toDataURL } from '../helpers';
+import { getCenter, getSize, toDataURL } from '../helpers';
 import {
   COLOR_DARK,
   COLOR_CARD_ZONE,
   COLOR_LIGHT,
-  createFwSizerWrapper
+  createFwSizerWrapper,
+  createLabel
 } from '../helpers/ui';
+
+class CardDetails extends RexPlugins.UI.FixWidthSizer {
+  constructor(scene) {
+    super(scene, {
+      width: 600,
+      height: 200,
+      align: 'justify-left',
+      space: {
+        top: 10,
+        left: 10,
+        right: 10,
+        bottom: 10
+      }
+    });
+
+    this.addBackground(
+      scene.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_DARK)
+    )
+      .anchorTop()
+      .setDepth(2)
+      .layout();
+    scene.add.existing(this);
+    console.log(this);
+  }
+
+  setCard(card) {
+    this.card = card;
+    this.update();
+  }
+
+  getPadding() {
+    return {
+      x: this.space.left + this.space.right,
+      y: this.space.bottom + this.space.top
+    };
+  }
+
+  update() {
+    this.removeAll(true);
+    this.cardSizer = createCardSizer(this.scene, this.card).setDepth(3);
+    this.descriptionBox = createDescriptionBox(this.scene, this.card, {
+      width: this.minWidth - this.cardSizer.minWidth - this.getPadding().x - 10,
+      height: this.minHeight - this.getPadding().y
+    });
+    this.add(this.cardSizer);
+    this.add(this.descriptionBox);
+
+    this.layout();
+  }
+
+  anchorTop() {
+    this.setPosition(getCenter(this.scene).x, this.minHeight / 2);
+    return this;
+  }
+
+  anchorBottom() {
+    this.setPosition(
+      getCenter(this.scene).x,
+      getSize(this.scene).y - this.minHeight / 2
+    );
+    return this;
+  }
+
+  anchorLeft() {
+    this.setPosition(this.minWidth / 2, getCenter(this.scene).y);
+    return this;
+  }
+
+  anchorRight() {
+    this.sizer.setPosition(
+      getSize(this.scene).x - this.minWidth / 2,
+      getCenter(this.scene).y
+    );
+    return this;
+  }
+}
+
+const createWrappedText = (scene, text, textOpts, labelOpts) => {
+  const wrappedText = scene.rexUI.add.label({
+    width: 75,
+    text: scene.rexUI.wrapExpandText(
+      scene.add.text(0, 0, text, {
+        fontSize: 18,
+        ...textOpts
+      })
+    ),
+    expandTextWidth: true,
+    align: 'left',
+    ...labelOpts
+  });
+
+  return wrappedText;
+};
+
+const createDescriptionBox = (scene, card, opts) => {
+  return createFwSizerWrapper(scene, {
+    space: {
+      top: 10,
+      left: 10,
+      right: 10,
+      bottom: 10
+    },
+    ...opts
+  })
+    .addBackground(scene.rexUI.add.roundRectangle(0, 0, 0, 0, 14, COLOR_LIGHT))
+    .add(
+      scene.add.text(0, 0, `yayo`, {
+        fontSize: 18
+      })
+    )
+    .layout()
+    .setDepth(3);
+};
+
+const createCardSizer = (scene, card, opts) => {
+  if (card == null && opts?.unknown != true) throw new Error('Card is null');
+
+  const cardSizer = createFwSizerWrapper(scene, {
+    width: 75,
+    height: 100,
+    align: 'left'
+  }).addBackground(
+    scene.rexUI.add.roundRectangle(
+      0,
+      0,
+      0,
+      0,
+      5,
+      opts?.unknown === true ? COLOR_DARK : COLOR_LIGHT
+    )
+  );
+
+  if (opts?.unknown != true) {
+    cardSizer.add(createWrappedText(scene, `${card.name}`));
+    cardSizer.add(
+      createFwSizerWrapper(scene, {
+        width: 75,
+        height: 65,
+        align: 'center',
+        space: {
+          top: 5,
+          bottom: 5
+        }
+      }).add(scene.add.sprite(0, 0, card.name).setDisplaySize(65, 65))
+    );
+    try {
+      if (scene.textures.get(card.name).key === '__MISSING') {
+        if (!scene.textures.exists(card.name)) {
+          toDataURL(card.imgUrl, (base64Data) => {
+            scene.textures.addBase64(card.name, base64Data);
+          });
+        } else {
+          console.error(
+            `Could not create texture for ${card.name} because it already exists.`
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Could not load texture', error);
+    }
+  }
+
+  return cardSizer;
+};
 
 export default class GameUI {
   constructor(scene, gameState, gameEngine) {
@@ -19,12 +184,14 @@ export default class GameUI {
       this.scene.turnTextSizer.removeAll(true);
       this.scene.turnTextSizer
         .add(
-          this.createWrappedText(
+          createWrappedText(
+            this.scene,
             isCurrentPlayerTurn ? 'Your Turn' : 'Enemy Turn',
             { fontSize: 18, align: 'center' },
             { width: 120, height: 50 }
           )
         )
+        .setDepth(5)
         .layout();
       this.scene.turnTextSizer.setVisible(true);
     };
@@ -122,85 +289,21 @@ export default class GameUI {
       )
       .layout();
 
-    this.scene.otherPlayerDeckSizer = this.createCardSizer(null, {
+    this.scene.otherPlayerDeckSizer = createCardSizer(this.scene, null, {
       unknown: true
     })
       .setPosition(50, 60)
       .layout();
 
-    this.scene.currentPlayerDeckSizer = this.createCardSizer(null, {
+    this.scene.currentPlayerDeckSizer = createCardSizer(this.scene, null, {
       unknown: true
     })
       .setPosition(750, 540)
       .layout();
-  }
 
-  createCardSizer(card, opts) {
-    if (card == null && opts?.unknown != true) throw new Error('Card is null');
-
-    const cardSizer = createFwSizerWrapper(this, {
-      width: 75,
-      height: 100,
-      align: 'left'
-    }).addBackground(
-      this.scene.rexUI.add.roundRectangle(
-        0,
-        0,
-        0,
-        0,
-        5,
-        opts?.unknown === true ? COLOR_DARK : COLOR_LIGHT
-      )
-    );
-
-    if (opts?.unknown != true) {
-      cardSizer.add(this.createWrappedText(`${card.name}`));
-      cardSizer.add(
-        createFwSizerWrapper(this, {
-          width: 75,
-          height: 65,
-          align: 'center',
-          space: {
-            top: 5,
-            bottom: 5
-          }
-        }).add(this.scene.add.sprite(0, 0, card.name).setDisplaySize(65, 65))
-      );
-      try {
-        if (this.scene.textures.get(card.name).key === '__MISSING') {
-          if (!this.scene.textures.exists(card.name)) {
-            toDataURL(card.imgUrl, (base64Data) => {
-              this.scene.textures.addBase64(card.name, base64Data);
-            });
-          } else {
-            console.error(
-              `Could not create texture for ${card.name} because it already exists.`
-            );
-          }
-        }
-      } catch (error) {
-        console.error('Could not load texture', error);
-      }
-    }
-
-    return cardSizer;
-  }
-
-  createWrappedText(text, textOpts, labelOpts) {
-    const wrappedText = this.scene.rexUI.add.label({
-      width: 75,
-      text: this.scene.rexUI.wrapExpandText(
-        this.scene.add.text(0, 0, text, {
-          fontSize: 18,
-          ...textOpts
-        })
-      ),
-      expandTextWidth: true,
-      align: 'left',
-      ...labelOpts
-    });
-
-    return wrappedText;
+    this.scene.cardDetails = new CardDetails(this.scene);
+    this.scene.cardDetails.setCard(getCard(12));
+    this.scene.cardDetails.layout();
   }
 
   update() {
@@ -210,7 +313,7 @@ export default class GameUI {
     let sizer = this.scene.otherPlayerHandSizer;
     sizer.removeAll(true);
     for (const card of otherPlayer.getHand()) {
-      const cardSizer = this.createCardSizer(card, {
+      const cardSizer = createCardSizer(this.scene, card, {
         unknown: card.unknown
       });
       sizer.add(cardSizer);
@@ -220,7 +323,7 @@ export default class GameUI {
     sizer = this.scene.currentPlayerHandSizer;
     sizer.removeAll(true);
     for (const card of currentPlayer.getHand()) {
-      const cardSizer = this.createCardSizer(card, {
+      const cardSizer = createCardSizer(this.scene, card, {
         unknown: card.unknown
       });
       sizer.add(cardSizer);
@@ -231,7 +334,8 @@ export default class GameUI {
     sizer.removeAll(true);
     sizer
       .add(
-        this.createWrappedText(
+        createWrappedText(
+          this.scene,
           this.gameState.getOtherPlayer().getDeck().length,
           null,
           {
@@ -246,7 +350,8 @@ export default class GameUI {
     sizer.removeAll(true);
     sizer
       .add(
-        this.createWrappedText(
+        createWrappedText(
+          this.scene,
           this.gameState.getCurrentPlayer().getDeck().length,
           null,
           { align: 'center', height: 100 }

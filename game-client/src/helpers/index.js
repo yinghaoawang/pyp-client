@@ -3,6 +3,10 @@ module.exports = {
     return { x: scene.cameras.main.centerX, y: scene.cameras.main.centerY };
   },
 
+  getSize: (scene) => {
+    return { x: scene.cameras.main.width, y: scene.cameras.main.height };
+  },
+
   toDataURL: (src, callback, outputFormat) => {
     let image = new Image();
     image.crossOrigin = 'Anonymous';
