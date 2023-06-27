@@ -34,6 +34,7 @@ class CardDetails extends RexPlugins.UI.FixWidthSizer {
 
   setCard(card) {
     this.card = card;
+    this.setVisible(true);
     this.update();
   }
 
@@ -46,6 +47,7 @@ class CardDetails extends RexPlugins.UI.FixWidthSizer {
 
   update() {
     this.removeAll(true);
+    if (this.card == null) return;
     this.cardSizer = createCardSizer(this.scene, this.card).setDepth(3);
     this.descriptionBox = createDescriptionBox(this.scene, this.card, {
       width: this.minWidth - this.cardSizer.minWidth - this.getPadding().x - 10,
@@ -113,8 +115,22 @@ const createDescriptionBox = (scene, card, opts) => {
   })
     .addBackground(scene.rexUI.add.roundRectangle(0, 0, 0, 0, 14, COLOR_LIGHT))
     .add(
-      scene.add.text(0, 0, `yayo`, {
-        fontSize: 18
+      scene.rexUI.add.textArea({
+        text: scene.add.text({ style: { fontSize: 18 } }),
+        content: card.description,
+        width: opts.width - 20,
+        height: opts.height - 20,
+        slider: {
+          hideUnscrollableSlider: true,
+          track: scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_DARK),
+          thumb: scene.rexUI.add
+            .roundRectangle(0, 0, 0, 0, 13, COLOR_LIGHT)
+            .setInteractive({ cursor: 'pointer' })
+        },
+        mouseWheelScroller: {
+          focus: false,
+          speed: 0.1
+        }
       })
     )
     .layout()
@@ -209,7 +225,7 @@ export default class GameUI {
       return new Promise((resolve, reject) => {
         const tween1 = this.scene.tweens.add({
           targets: this.scene.turnTextSizer,
-          x: { from: -200, to: 400 },
+          x: { from: -200, to: getCenter(this.scene).x },
           ease: 'Linear',
           duration: 500,
           yoyo: false,
@@ -224,7 +240,7 @@ export default class GameUI {
       return new Promise((resolve, reject) => {
         const tween2 = this.scene.tweens.add({
           targets: this.scene.turnTextSizer,
-          x: { from: 400, to: 800 + 200 },
+          x: { from: getCenter(this.scene).x, to: getSize(this.scene).x + 200 },
           ease: 'Linear',
           duration: 500,
           yoyo: false,
@@ -311,8 +327,7 @@ export default class GameUI {
       .layout();
 
     this.scene.cardDetails = new CardDetails(this.scene);
-    this.scene.cardDetails.setCard(getCard(5));
-    this.scene.cardDetails.layout();
+    this.scene.cardDetails.layout().setVisible(false);
   }
 
   update() {
@@ -326,6 +341,7 @@ export default class GameUI {
         unknown: card.unknown
       });
       sizer.add(cardSizer);
+      5;
       sizer.layout();
     }
 
@@ -334,7 +350,12 @@ export default class GameUI {
     for (const card of currentPlayer.getHand()) {
       const cardSizer = createCardSizer(this.scene, card, {
         unknown: card.unknown
-      });
+      })
+        .setInteractive({ cursor: 'pointer' })
+        .on('pointerdown', () => {
+          console.log(card);
+          this.scene.cardDetails.setCard(card);
+        });
       sizer.add(cardSizer);
       sizer.layout();
     }
@@ -367,7 +388,5 @@ export default class GameUI {
         )
       )
       .layout();
-
-    this.scene.cardDetails?.update();
   }
 }

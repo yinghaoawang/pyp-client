@@ -101,13 +101,10 @@ class LobbyDirectory extends Phaser.Scene {
 const createScrollablePanel = function (scene) {
   return scene.rexUI.add
     .scrollablePanel({
-      x: 400,
-      y: 265,
+      x: getCenter(scene).x,
+      y: getCenter(scene).y - 35,
       width: 500,
       height: 500,
-
-      scrollMode: 0,
-
       background: scene.rexUI.add.roundRectangle(0, 0, 2, 2, 10, COLOR_SECONDARY),
 
       panel: {
@@ -127,6 +124,7 @@ const createScrollablePanel = function (scene) {
       },
 
       slider: {
+        hideUnscrollableSlider: true,
         track: scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_DARK),
         thumb: scene.rexUI.add
           .roundRectangle(0, 0, 0, 0, 13, COLOR_LIGHT)

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import config from '../config';
+import { getCenter, getSize } from '../helpers';
 const { io } = require('socket.io-client');
 
 class Connect extends Phaser.Scene {
@@ -9,13 +10,13 @@ class Connect extends Phaser.Scene {
 
   create(data) {
     this.loadingGlobe = this.add
-      .image(400, 280, 'globe')
+      .image(getCenter(this).x, getCenter(this).y - 20, 'globe')
       .setDisplaySize(250, 250)
       .setTint(0, 0x0000ff, 0xff0000, 0)
       .setOrigin(0.5, 0.5);
 
     this.isLoading = true;
-    this.loadingText = this.add.text(400, 500, 'Connecting to server', {
+    this.loadingText = this.add.text(getCenter(this).x, getSize(this).y - 100, 'Connecting to server', {
       font: '20px'
     });
     this.loadingText.setOriginFromFrame();
