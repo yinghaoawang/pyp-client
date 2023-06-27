@@ -32,8 +32,9 @@ class CardDetails extends RexPlugins.UI.FixWidthSizer {
     console.log(this);
   }
 
-  setCard(card) {
+  async setCard(card) {
     this.card = card;
+    await loadTexture(this.scene, card);
     this.update();
   }
 
@@ -152,24 +153,33 @@ const createCardSizer = (scene, card, opts) => {
         }
       }).add(scene.add.sprite(0, 0, card.name).setDisplaySize(65, 65))
     );
+    loadTexture(scene, card);
+  }
+
+  return cardSizer;
+};
+
+const loadTexture = (scene, data) => {
+  return new Promise((resolve, reject) => {
     try {
-      if (scene.textures.get(card.name).key === '__MISSING') {
-        if (!scene.textures.exists(card.name)) {
-          toDataURL(card.imgUrl, (base64Data) => {
-            scene.textures.addBase64(card.name, base64Data);
+      if (scene.textures.get(data.name).key === '__MISSING') {
+        if (!scene.textures.exists(data.name)) {
+          toDataURL(data.imgUrl, (base64Data) => {
+            scene.textures.addBase64(data.name, base64Data);
+            resolve();
           });
         } else {
           console.error(
-            `Could not create texture for ${card.name} because it already exists.`
+            `Could not create texture for ${data.name} because it already exists.`
           );
+          reject();
         }
       }
     } catch (error) {
       console.error('Could not load texture', error);
+      reject();
     }
-  }
-
-  return cardSizer;
+  });
 };
 
 export default class GameUI {
@@ -237,7 +247,7 @@ export default class GameUI {
     this.scene.input.on('pointerdown', onConfirmClick);
   }
 
-  init() {
+  async init() {
     this.scene.turnTextSizer = createFwSizerWrapper(this, {
       width: 120,
       height: 50,
@@ -302,7 +312,7 @@ export default class GameUI {
       .layout();
 
     this.scene.cardDetails = new CardDetails(this.scene);
-    this.scene.cardDetails.setCard(getCard(12));
+    await this.scene.cardDetails.setCard(getCard(5));
     this.scene.cardDetails.layout();
   }
 
@@ -358,5 +368,7 @@ export default class GameUI {
         )
       )
       .layout();
+
+    this.scene.cardDetails?.update();
   }
 }
