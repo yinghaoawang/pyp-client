@@ -438,14 +438,15 @@ export default class GameUI {
           })
           .on('drop', function (pointer, target) {
             self.gameEngine.emitPlayCard(card.index)
-            player.playCard(index);
-            
             const parent = cardSizer.getParentSizer();
             parent.remove(cardSizer);
             
+            player.playCard(index);
 
-            this.scene.playecardSizer.removeInteractive();
-            cardSizer.setPosition(0, 0);rFieldZone.add(cardSizer).layout();
+            cardSizer.removeInteractive();
+            cardSizer.setPosition(0, 0);
+
+            this.scene.playerFieldZone.add(cardSizer).layout();
             self.updateCardZone(player, playerHandZone);
           });
       }
