@@ -408,6 +408,16 @@ export default class GameUI {
     this.scene.fieldZone.setInteractive({ dropZone: true });
   }
 
+  onDragOverFieldZone() {
+    const background = this.scene.fieldZone.backgroundChildren?.[0];
+    background.setFillStyle(COLOR_FIELD_ZONE - 0xccaaaa);
+  }
+
+  onDragLeaveFieldZone() {
+    const background = this.scene.fieldZone.backgroundChildren?.[0];
+    background.setFillStyle(COLOR_FIELD_ZONE);
+  }
+
   updateCardZone(player, playerHandZone) {
     const self = this;
     playerHandZone.removeAll(true);
@@ -425,22 +435,29 @@ export default class GameUI {
           .on('drag', function (pointer, dragX, dragY) {
             cardSizer.setPosition(dragX, dragY);
           })
-          .on('dragend', function (pointer, dragX, dragY, dropped) {
-            if (dropped) {
-              return;
-            }
-
+          .on('dragend', function (pointer, dragX, dragY) {
             cardSizer.moveTo({
               x: cardSizer.getData('startX'),
               y: cardSizer.getData('startY'),
               speed: 2000
             });
           })
+          .on('dragenter', function (pointer, target) {
+            if (target === self.scene.fieldZone) {
+              self.onDragOverFieldZone();
+            }
+          })
+          .on('dragleave', function (pointer, target) {
+            if (target === self.scene.fieldZone) {
+              self.onDragLeaveFieldZone();
+            }
+          })
           .on('drop', function (pointer, target) {
-            self.gameEngine.emitPlayCard(card.index)
+            self.onDragLeaveFieldZone();
+
+            self.gameEngine.emitPlayCard(card.index);
             const parent = cardSizer.getParentSizer();
             parent.remove(cardSizer);
-            
             player.playCard(index);
 
             cardSizer.removeInteractive();
