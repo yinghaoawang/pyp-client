@@ -83,5 +83,5 @@ export const getCard = (id) => {
 };
 
 export const getBlankCard = () => {
-  return { unknown: true };
+  return null;
 };

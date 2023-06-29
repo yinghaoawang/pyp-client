@@ -1,3 +1,5 @@
+import { getBlankCard } from '../data/sample/cards';
+
 export default class PlayerState {
   constructor(deckSize) {
     this.deckSize = deckSize;
@@ -29,7 +31,7 @@ export default class PlayerState {
    */
   addUnknownToDeck(count = 1) {
     for (let i = 0; i < count; i++) {
-      this.deck.push({unknown: true});
+      this.deck.push(getBlankCard());
     }
   }
 }

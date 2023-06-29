@@ -138,12 +138,11 @@ const createDescriptionBox = (scene, card, opts) => {
 };
 
 const createCardSizer = (scene, card, opts) => {
-  if (card == null && opts?.unknown != true) throw new Error('Card is null');
-
   const cardSizer = createFwSizerWrapper(scene, {
     width: 75,
     height: 100,
-    align: 'left'
+    align: 'left',
+    ...opts
   }).addBackground(
     scene.rexUI.add.roundRectangle(
       0,
@@ -151,11 +150,11 @@ const createCardSizer = (scene, card, opts) => {
       0,
       0,
       5,
-      opts?.unknown === true ? COLOR_DARK : COLOR_LIGHT
+      card == null ? COLOR_DARK : COLOR_LIGHT
     )
   );
 
-  if (opts?.unknown != true) {
+  if (card != null) {
     cardSizer.add(createWrappedText(scene, `${card.name}`));
     cardSizer.add(
       createFwSizerWrapper(scene, {
@@ -292,7 +291,7 @@ export default class GameUI {
       .layout()
       .setVisible(false);
 
-    this.scene.otherPlayerHandSizer = createFwSizerWrapper(this, {
+    this.scene.otherPlayerHandZone = createFwSizerWrapper(this, {
       x: getCenter(this.scene).x,
       y: 70,
       width: 600,
@@ -312,7 +311,7 @@ export default class GameUI {
       )
       .layout();
 
-    this.scene.currentPlayerHandSizer = createFwSizerWrapper(this, {
+    this.scene.currentPlayerHandZone = createFwSizerWrapper(this, {
       x: getCenter(this.scene).x,
       y: 530,
       width: 600,
@@ -331,15 +330,11 @@ export default class GameUI {
       )
       .layout();
 
-    this.scene.otherPlayerDeckSizer = createCardSizer(this.scene, null, {
-      unknown: true
-    })
+    this.scene.otherPlayerDeck = createCardSizer(this.scene, null)
       .setPosition(50, 60)
       .layout();
 
-    this.scene.currentPlayerDeckSizer = createCardSizer(this.scene, null, {
-      unknown: true
-    })
+    this.scene.currentPlayerDeck = createCardSizer(this.scene, null)
       .setPosition(750, 540)
       .layout();
 
@@ -351,32 +346,41 @@ export default class GameUI {
     const currentPlayer = this.gameState.getCurrentPlayer();
     const otherPlayer = this.gameState.getOtherPlayer();
 
-    let sizer = this.scene.otherPlayerHandSizer;
+    let sizer = this.scene.otherPlayerHandZone;
     sizer.removeAll(true);
     for (const card of otherPlayer.getHand()) {
-      const cardSizer = createCardSizer(this.scene, card, {
-        unknown: card.unknown
-      });
+      const cardSizer = createCardSizer(this.scene, card);
       sizer.add(cardSizer);
-      5;
       sizer.layout();
     }
 
-    sizer = this.scene.currentPlayerHandSizer;
+    sizer = this.scene.currentPlayerHandZone;
     sizer.removeAll(true);
     for (const card of currentPlayer.getHand()) {
-      const cardSizer = createCardSizer(this.scene, card, {
-        unknown: card.unknown
-      })
-        .setInteractive({ cursor: 'pointer' })
+      const cardSizer = createCardSizer(this.scene, card)
+        .setInteractive({ cursor: 'pointer', draggable: true })
         .on('pointerdown', () => {
           this.scene.input.emit('selectCard', card);
+        })
+        .on('dragstart', function () {
+          cardSizer.setData({ startX: cardSizer.x, startY: cardSizer.y });
+        })
+        .on('drag', function (pointer, dragX, dragY) {
+          cardSizer.setPosition(dragX, dragY);
+        })
+        .on('dragend', function () {
+          console.log(cardSizer.getData('startX'));
+          cardSizer.moveTo({
+            x: cardSizer.getData('startX'),
+            y: cardSizer.getData('startY'),
+            speed: 2000
+          });
         });
       sizer.add(cardSizer);
       sizer.layout();
     }
 
-    sizer = this.scene.otherPlayerDeckSizer;
+    sizer = this.scene.otherPlayerDeck;
     sizer.removeAll(true);
     sizer
       .add(
@@ -392,7 +396,7 @@ export default class GameUI {
       )
       .layout();
 
-    sizer = this.scene.currentPlayerDeckSizer;
+    sizer = this.scene.currentPlayerDeck;
     sizer.removeAll(true);
     sizer
       .add(
