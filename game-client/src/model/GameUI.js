@@ -34,7 +34,7 @@ class CardDetails extends RexPlugins.UI.FixWidthSizer {
 
   setCard(card) {
     this.card = card;
-    this.setVisible(true);
+    this.setVisible(card != null);
     this.update();
   }
 
@@ -202,6 +202,7 @@ export default class GameUI {
     this.scene = scene;
     this.gameState = gameState;
     this.gameEngine = gameEngine;
+    this.isCardSelected = false;
   }
 
   async displayTurnChange(isCurrentPlayerTurn, callback) {
@@ -263,6 +264,22 @@ export default class GameUI {
   }
 
   init() {
+    this.scene.input.on('pointerdown', () => {
+      if (this.isCardSelected) {
+        // deselect card
+        this.scene.cardDetails?.setCard(null);
+        this.isCardSelected = false;
+      }
+    });
+
+    this.scene.input.on('selectCard', (card) => {
+      // timeout required to fire event after deselection event
+      setTimeout(() => {
+        this.scene.cardDetails.setCard(card);
+        this.isCardSelected = true;
+      }, 0);
+    });
+
     this.scene.turnTextSizer = createFwSizerWrapper(this, {
       width: 120,
       height: 50,
@@ -353,8 +370,7 @@ export default class GameUI {
       })
         .setInteractive({ cursor: 'pointer' })
         .on('pointerdown', () => {
-          console.log(card);
-          this.scene.cardDetails.setCard(card);
+          this.scene.input.emit('selectCard', card);
         });
       sizer.add(cardSizer);
       sizer.layout();
