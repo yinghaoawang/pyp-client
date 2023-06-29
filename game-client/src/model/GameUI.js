@@ -29,8 +29,9 @@ class CardDetails extends RexPlugins.UI.FixWidthSizer {
       .anchorTop()
       .setDepth(2)
       .layout();
+
+    this.setCard(null);
     scene.add.existing(this);
-    console.log(this);
   }
 
   setCard(card) {
@@ -304,8 +305,8 @@ export default class GameUI {
       space: {
         left: 3,
         right: 3,
-        top: 10,
-        bottom: 10,
+        top: 12,
+        bottom: 12,
         row: 15
       },
       align: 'center'
@@ -404,73 +405,57 @@ export default class GameUI {
       .layout();
 
     this.scene.cardDetails = new CardDetails(this.scene);
-    this.scene.cardDetails.layout().setVisible(false);
+  }
+
+  updateCardZone(player, playerHandZone) {
+    playerHandZone.removeAll(true);
+    for (const card of player.getHand()) {
+      const cardSizer = createCardSizer(this.scene, card);
+      if (player === this.gameState.getCurrentPlayer()) {
+        cardSizer
+          .setInteractive({ cursor: 'pointer', draggable: true })
+          .on('pointerdown', () => {
+            this.scene.input.emit('selectCard', card);
+          })
+          .on('dragstart', function () {
+            cardSizer.setData({ startX: cardSizer.x, startY: cardSizer.y });
+          })
+          .on('drag', function (pointer, dragX, dragY) {
+            cardSizer.setPosition(dragX, dragY);
+          })
+          .on('dragend', function () {
+            cardSizer.moveTo({
+              x: cardSizer.getData('startX'),
+              y: cardSizer.getData('startY'),
+              speed: 2000
+            });
+          });
+      }
+      playerHandZone.add(cardSizer);
+      playerHandZone.layout();
+    }
+  }
+
+  updateDeck(player, playerDeck) {
+    playerDeck.removeAll(true);
+    playerDeck
+      .add(
+        createWrappedText(this.scene, player.getDeck().length, null, {
+          align: 'center',
+          height: 100
+        })
+      )
+      .layout();
   }
 
   update() {
     const currentPlayer = this.gameState.getCurrentPlayer();
     const otherPlayer = this.gameState.getOtherPlayer();
 
-    let sizer = this.scene.otherPlayerHandZone;
-    sizer.removeAll(true);
-    for (const card of otherPlayer.getHand()) {
-      const cardSizer = createCardSizer(this.scene, card);
-      sizer.add(cardSizer);
-      sizer.layout();
-    }
+    this.updateCardZone(currentPlayer, this.scene.currentPlayerHandZone);
+    this.updateCardZone(otherPlayer, this.scene.otherPlayerHandZone);
 
-    sizer = this.scene.currentPlayerHandZone;
-    sizer.removeAll(true);
-    for (const card of currentPlayer.getHand()) {
-      const cardSizer = createCardSizer(this.scene, card)
-        .setInteractive({ cursor: 'pointer', draggable: true })
-        .on('pointerdown', () => {
-          this.scene.input.emit('selectCard', card);
-        })
-        .on('dragstart', function () {
-          cardSizer.setData({ startX: cardSizer.x, startY: cardSizer.y });
-        })
-        .on('drag', function (pointer, dragX, dragY) {
-          cardSizer.setPosition(dragX, dragY);
-        })
-        .on('dragend', function () {
-          cardSizer.moveTo({
-            x: cardSizer.getData('startX'),
-            y: cardSizer.getData('startY'),
-            speed: 2000
-          });
-        });
-      sizer.add(cardSizer);
-      sizer.layout();
-    }
-
-    sizer = this.scene.otherPlayerDeck;
-    sizer.removeAll(true);
-    sizer
-      .add(
-        createWrappedText(
-          this.scene,
-          this.gameState.getOtherPlayer().getDeck().length,
-          null,
-          {
-            align: 'center',
-            height: 100
-          }
-        )
-      )
-      .layout();
-
-    sizer = this.scene.currentPlayerDeck;
-    sizer.removeAll(true);
-    sizer
-      .add(
-        createWrappedText(
-          this.scene,
-          this.gameState.getCurrentPlayer().getDeck().length,
-          null,
-          { align: 'center', height: 100 }
-        )
-      )
-      .layout();
+    this.updateDeck(currentPlayer, this.scene.currentPlayerDeck);
+    this.updateDeck(otherPlayer, this.scene.otherPlayerDeck);
   }
 }
