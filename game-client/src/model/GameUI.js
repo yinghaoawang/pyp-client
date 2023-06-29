@@ -4,8 +4,9 @@ import {
   COLOR_DARK,
   COLOR_CARD_ZONE,
   COLOR_LIGHT,
+  COLOR_FIELD_ZONE,
   createFwSizerWrapper,
-  createLabel
+  createGridSizerWrapper
 } from '../helpers/ui';
 
 class CardDetails extends RexPlugins.UI.FixWidthSizer {
@@ -291,6 +292,70 @@ export default class GameUI {
       .layout()
       .setVisible(false);
 
+    this.scene.fieldZone = createGridSizerWrapper(this, {
+      x: getCenter(this.scene).x,
+      y: getCenter(this.scene).y,
+      col: 1,
+      row: 2,
+      columnProportions: [1],
+      width: 720,
+      height: 280,
+      orientation: 'y',
+      space: {
+        left: 3,
+        right: 3,
+        top: 10,
+        bottom: 10,
+        row: 15
+      },
+      align: 'center'
+    })
+      .addBackground(
+        this.scene.rexUI.add.roundRectangle(0, 0, 10, 10, 5, COLOR_FIELD_ZONE)
+      )
+      .layout();
+
+    this.scene.otherPlayerFieldZone = createFwSizerWrapper(this, {
+      width: 600,
+      height: 120,
+      orientation: 'x',
+      space: {
+        left: 3,
+        right: 3,
+        top: 10,
+        bottom: 10,
+        item: 8
+      },
+      align: 'center'
+    })
+      .addBackground(
+        this.scene.rexUI.add.roundRectangle(0, 0, 10, 10, 5, 0x9999ff)
+      )
+      .layout();
+
+    this.scene.playerFieldZone = createFwSizerWrapper(this, {
+      width: 600,
+      height: 120,
+      orientation: 'x',
+      space: {
+        left: 3,
+        right: 3,
+        top: 10,
+        bottom: 10,
+        item: 8
+      },
+      align: 'center'
+    })
+      .addBackground(
+        this.scene.rexUI.add.roundRectangle(0, 0, 10, 10, 5, 0x9999ff)
+      )
+      .layout();
+
+    this.scene.fieldZone
+      .add(this.scene.otherPlayerFieldZone, { align: 'center' })
+      .add(this.scene.playerFieldZone, { align: 'center' })
+      .layout();
+
     this.scene.otherPlayerHandZone = createFwSizerWrapper(this, {
       x: getCenter(this.scene).x,
       y: 70,
@@ -369,7 +434,6 @@ export default class GameUI {
           cardSizer.setPosition(dragX, dragY);
         })
         .on('dragend', function () {
-          console.log(cardSizer.getData('startX'));
           cardSizer.moveTo({
             x: cardSizer.getData('startX'),
             y: cardSizer.getData('startY'),

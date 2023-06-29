@@ -7,11 +7,21 @@ export const COLOR_DARK = 0x222444;
 
 // Game
 export const COLOR_CARD_ZONE = 0x999999;
+export const COLOR_FIELD_ZONE = 0x111144;
 
 // Lobby
 export const COLOR_HEADER = 0x482f26;
 export const COLOR_HOST = 0x8b2f26;
 export const COLOR_DISABLED = 0x444444;
+
+export const createGridSizerWrapper = (scene, sizerOpts) => {
+  const rexUI = scene?.rexUI || scene?.scene?.rexUI;
+  if (rexUI == null) throw new Error('Could not find scene.rexUI');
+  const sizer = rexUI.add.gridSizer({
+    ...sizerOpts
+  });
+  return sizer;
+}
 
 export const createFwSizerWrapper = (scene, sizerOpts) => {
   const rexUI = scene?.rexUI || scene?.scene?.rexUI;
