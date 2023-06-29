@@ -25,6 +25,11 @@ export default class PlayerState {
     return this.hand;
   }
 
+  playCard(cardIndex) {
+    const card = this.hand.splice(cardIndex, 1);
+    this.discardPile.push(card);
+  }
+
   /**
    * Adds unknown cards to this player's deck
    * @param {number} count 

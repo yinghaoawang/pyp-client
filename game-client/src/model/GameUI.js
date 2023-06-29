@@ -405,11 +405,13 @@ export default class GameUI {
       .layout();
 
     this.scene.cardDetails = new CardDetails(this.scene);
+    this.scene.fieldZone.setInteractive({ dropZone: true });
   }
 
   updateCardZone(player, playerHandZone) {
+    const self = this;
     playerHandZone.removeAll(true);
-    for (const card of player.getHand()) {
+    for (const [index, card] of Object.entries(player.getHand())) {
       const cardSizer = createCardSizer(this.scene, card);
       if (player === this.gameState.getCurrentPlayer()) {
         cardSizer
@@ -423,12 +425,28 @@ export default class GameUI {
           .on('drag', function (pointer, dragX, dragY) {
             cardSizer.setPosition(dragX, dragY);
           })
-          .on('dragend', function () {
+          .on('dragend', function (pointer, dragX, dragY, dropped) {
+            if (dropped) {
+              return;
+            }
+
             cardSizer.moveTo({
               x: cardSizer.getData('startX'),
               y: cardSizer.getData('startY'),
               speed: 2000
             });
+          })
+          .on('drop', function (pointer, target) {
+            self.gameEngine.emitPlayCard(card.index)
+            player.playCard(index);
+            
+            const parent = cardSizer.getParentSizer();
+            parent.remove(cardSizer);
+            
+
+            this.scene.playecardSizer.removeInteractive();
+            cardSizer.setPosition(0, 0);rFieldZone.add(cardSizer).layout();
+            self.updateCardZone(player, playerHandZone);
           });
       }
       playerHandZone.add(cardSizer);

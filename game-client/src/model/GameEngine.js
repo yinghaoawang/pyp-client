@@ -6,7 +6,8 @@ export default class GameEngine {
   }
 
   initializePlayers({ currentPlayerIndex }) {
-    if (currentPlayerIndex == null) throw new Error('currentPlayerIndex required to initialize players');
+    if (currentPlayerIndex == null)
+      throw new Error('currentPlayerIndex required to initialize players');
 
     this.gameState.setCurrentPlayerIndex(currentPlayerIndex);
     this.gameState.createPlayer(this.gameState.getCurrentPlayerIndex(), 20);
@@ -26,5 +27,9 @@ export default class GameEngine {
 
   startGame(startingPlayerIndex) {
     this.gameState.setStartingPlayerIndex(startingPlayerIndex);
+  }
+
+  emitPlayCard(playerIndex, cardIndex) {
+    console.log('play card');
   }
 }
