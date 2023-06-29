@@ -46,7 +46,7 @@ class GameEventQueue {
     return this.eventQueue[0];
   }
 
-  handleEvent(eventName, payload) {
+  enqueueEvent(eventName, payload) {
     switch (eventName) {
       case 'error':
         alert(`Error: ${payload.message}`);
@@ -91,15 +91,29 @@ class GameEventQueue {
       case 'drawCards':
         const { cards, metadata } = payload;
         for (const card of cards) {
-          this.handleEvent('drawCard', { card, metadata });
+          this.enqueueEvent('drawCard', { card, metadata });
         }
+        break;
+      case 'playCard':
+        this.enqueue({
+          name: eventName,
+          command: (resolve, reject) => {
+            setTimeout(() => {
+              console.log('play card', payload);
+              // TODO determine which player is playing the card, currently assumes current player
+              this.gameEngine.playCard(this.gameState.getCurrentPlayerIndex(), payload.cardIndex);
+              this.gameUI.playCard(payload.cardIndex);
+              resolve();
+            }, 100);
+          }
+        });
         break;
       case 'wait':
         this.enqueue({
           name: eventName,
           command: (resolve, reject) => {
             setTimeout(() => {
-              resolve(0);
+              resolve();
             }, payload.ms);
           }
         });

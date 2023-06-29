@@ -1,4 +1,6 @@
+import testPacketSender from '../data/sample/testPacketSender';
 import PlayerState from './PlayerState';
+import userState from './userState';
 
 export default class GameEngine {
   constructor(gameState) {
@@ -29,7 +31,25 @@ export default class GameEngine {
     this.gameState.setStartingPlayerIndex(startingPlayerIndex);
   }
 
-  emitPlayCard(playerIndex, cardIndex) {
-    console.log('play card');
+  playCard(playerIndex, cardIndex) {
+    const player = this.gameState.getPlayerByIndex(playerIndex);
+
+    if (cardIndex < 0 || cardIndex > player.hand.length - 1) {
+      throw new Error('Hand card index out of bounds');
+    }
+    const card = player.hand.splice(cardIndex, 1)[0];
+    player.field.push(card);
+  }
+
+  emitPlayCard(cardIndex) {
+    if (process.env.NODE_ENV === 'development') {
+      testPacketSender.sendPacket(
+        'playCard',
+        { cardIndex: cardIndex },
+        userState.getCurrentUser()
+      );
+    } else {
+      // real socket emit
+    }
   }
 }

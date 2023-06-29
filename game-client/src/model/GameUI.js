@@ -334,7 +334,7 @@ export default class GameUI {
       )
       .layout();
 
-    this.scene.playerFieldZone = createFwSizerWrapper(this, {
+    this.scene.currentPlayerFieldZone = createFwSizerWrapper(this, {
       width: 600,
       height: 120,
       orientation: 'x',
@@ -354,7 +354,7 @@ export default class GameUI {
 
     this.scene.fieldZone
       .add(this.scene.otherPlayerFieldZone, { align: 'center' })
-      .add(this.scene.playerFieldZone, { align: 'center' })
+      .add(this.scene.currentPlayerFieldZone, { align: 'center' })
       .layout();
 
     this.scene.otherPlayerHandZone = createFwSizerWrapper(this, {
@@ -418,6 +418,19 @@ export default class GameUI {
     background.setFillStyle(COLOR_FIELD_ZONE);
   }
 
+  updateFieldZone(player, playerFieldZone) {
+    playerFieldZone.removeAll(true);
+    for (const [index, card] of Object.entries(player.getField())) {
+      const cardSizer = createCardSizer(this.scene, card);
+      console.log(card);
+      cardSizer.setInteractive({ cursor: 'pointer' }).on('pointerdown', () => {
+        this.scene.input.emit('selectCard', card);
+      });
+      playerFieldZone.add(cardSizer);
+      playerFieldZone.layout();
+    }
+  }
+
   updateCardZone(player, playerHandZone) {
     const self = this;
     playerHandZone.removeAll(true);
@@ -454,22 +467,21 @@ export default class GameUI {
           })
           .on('drop', function (pointer, target) {
             self.onDragLeaveFieldZone();
-
-            self.gameEngine.emitPlayCard(card.index);
-            const parent = cardSizer.getParentSizer();
-            parent.remove(cardSizer);
-            player.playCard(index);
-
-            cardSizer.removeInteractive();
-            cardSizer.setPosition(0, 0);
-
-            this.scene.playerFieldZone.add(cardSizer).layout();
-            self.updateCardZone(player, playerHandZone);
+            self.gameEngine.emitPlayCard(index);
           });
       }
       playerHandZone.add(cardSizer);
       playerHandZone.layout();
     }
+  }
+
+  playCard(cardIndex) {
+    const playerHandZone = this.scene.currentPlayerHandZone;
+    const playerFieldZone = this.scene.currentPlayerFieldZone;
+    const currentPlayer = this.gameState.getCurrentPlayer();
+
+    this.updateFieldZone(currentPlayer, playerFieldZone);
+    this.updateCardZone(currentPlayer, playerHandZone);
   }
 
   updateDeck(player, playerDeck) {

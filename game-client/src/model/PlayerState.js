@@ -7,6 +7,7 @@ export default class PlayerState {
     this.deck = [];
     this.discardPile = [];
     this.hand = [];
+    this.field = [];
   }
 
   init() {
@@ -25,9 +26,8 @@ export default class PlayerState {
     return this.hand;
   }
 
-  playCard(cardIndex) {
-    const card = this.hand.splice(cardIndex, 1);
-    this.discardPile.push(card);
+  getField() {
+    return this.field;
   }
 
   /**

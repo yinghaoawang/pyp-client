@@ -5,6 +5,7 @@ import GameEngine from '../model/GameEngine';
 import GameEventQueue from '../model/GameEventQueue';
 import GameUI from '../model/GameUI';
 import eventQueueTestData from '../data/sample/eventQueue';
+import testPacketSender from '../data/sample/testPacketSender';
 
 class Game extends Phaser.Scene {
   constructor() {
@@ -21,6 +22,10 @@ class Game extends Phaser.Scene {
       this.gameUI
     );
     this.isRunning = false;
+
+    if (process.env.NODE_ENV === 'development') {
+      testPacketSender.setGame(this);
+    }
   }
 
   preload() {}
@@ -56,7 +61,7 @@ class Game extends Phaser.Scene {
         this.gameUI.init();
         break;
       default:
-        this.gameEventQueue.handleEvent(packet.eventName, packet.payload);
+        this.gameEventQueue.enqueueEvent(packet.eventName, packet.payload);
     }
   }
 

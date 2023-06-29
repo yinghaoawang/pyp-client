@@ -8,6 +8,10 @@ class GameState {
     this.turn = 0;
   }
 
+  isCurrentPlayerIndex(index) {
+    return index == this.currentPlayerIndex;
+  }
+
   isCurrentPlayerTurn() {
     if (this.currentPlayerIndex == null || this.startingPlayerIndex == null) {
       throw new Error('Player indices not set');
@@ -80,6 +84,10 @@ class GameState {
     } else {
       return 0;
     }
+  }
+
+  getPlayerByIndex(index) {
+    return this.players[index];
   }
 
   getCurrentPlayerIndex() {
