@@ -22,7 +22,9 @@ class Lobby extends Phaser.Scene {
   preload() {}
 
   create(data) {
-    this.data = data;
+    this.isTesting = data?.isTesting;
+    this.lobbyData = data?.lobby;
+    console.log(data);
 
     this.loadingText = this.add
       .text(getCenter(this).x, getCenter(this).y, '')
@@ -43,11 +45,11 @@ class Lobby extends Phaser.Scene {
     setTimeout(() => {
       this.loadingSet.delete('getLobby');
       const currentUser = gameState.getCurrentUser();
-      if (this.data.users.find((u) => u.id === currentUser.id) == null) {
-        this.data.users.push(currentUser);
+      if (this.lobbyData.users.find((u) => u.id === currentUser.id) == null) {
+        this.lobbyData.users.push(currentUser);
       }
-      if (this.data.users.find((u) => u.username === 'ready')) {
-        this.data.users.find((u) => u.username === 'ready').isReady = true;
+      if (this.lobbyData.users.find((u) => u.username === 'ready')) {
+        this.lobbyData.users.find((u) => u.username === 'ready').isReady = true;
       }
 
       sizer = createFwSizerWrapper(this, {
@@ -68,7 +70,7 @@ class Lobby extends Phaser.Scene {
         this.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_DARK)
       );
 
-      updateLobby(this, sizer, data);
+      updateLobby(this, sizer, this.lobbyData);
     }, 500);
   }
 
@@ -81,7 +83,7 @@ class Lobby extends Phaser.Scene {
   }
 }
 
-const updateLobby = function (scene, sizer, data) {
+const updateLobby = function (scene, sizer, lobbyData) {
   sizer.removeAll(true);
   const title = createFwSizerWrapper(scene, {
     x: 400,
@@ -97,14 +99,14 @@ const updateLobby = function (scene, sizer, data) {
     }
   })
     .add(
-      createLabel(scene, 'Lobby: ' + data.name, {
+      createLabel(scene, 'Lobby: ' + lobbyData.name, {
         align: 'left',
         expand: false
       })
     )
     .addNewLine()
     .add(
-      createLabel(scene, 'Host: ' + data.host.username, {
+      createLabel(scene, 'Host: ' + lobbyData.host.username, {
         align: 'left',
         expand: false
       })
@@ -112,18 +114,18 @@ const updateLobby = function (scene, sizer, data) {
 
   sizer.add(title);
 
-  const allUsersReady = () =>
-    data.users.reduce((acc, user, idx) => {
+  const checkAllUsersReady = () =>
+  lobbyData.users.reduce((acc, user, idx) => {
       if (acc === false) return false;
-      const isHost = data.host.username === user.username;
+      const isHost = lobbyData.host.username === user.username;
       if (isHost) return true;
       if (user.isReady) return true;
       return false;
     }, true);
 
-  for (const user of data.users) {
+  for (const user of lobbyData.users) {
     const isCurrentUser = gameState.getCurrentUser().username === user.username;
-    const isHost = data.host.username === user.username;
+    const isHost = lobbyData.host.username === user.username;
 
     const userItem = scene.rexUI.add
       .gridSizer({
@@ -183,11 +185,11 @@ const updateLobby = function (scene, sizer, data) {
   }
 
   function createUserButtonLabel() {
-    const user = data.users.find((u) => u.id === gameState.getCurrentUser().id);
+    const user = lobbyData.users.find((u) => u.id === gameState.getCurrentUser().id);
     if (user == null) {
       throw new Error('Current user not found in lobby');
     }
-    const isHost = data.host.username === user.username;
+    const isHost = lobbyData.host.username === user.username;
 
     const userButton = createButtonLabel(
       scene,
@@ -201,17 +203,17 @@ const updateLobby = function (scene, sizer, data) {
         }
       },
       null,
-      isHost ? (allUsersReady() ? COLOR_LIGHT : COLOR_DISABLED) : COLOR_LIGHT
+      isHost ? (checkAllUsersReady() ? COLOR_LIGHT : COLOR_DISABLED) : COLOR_LIGHT
     );
 
-    if (isHost && !allUsersReady()) return userButton;
+    if (isHost && !checkAllUsersReady()) return userButton;
 
     userButton.setInteractive({ cursor: 'pointer' }).on('pointerdown', () => {
       if (!isHost) {
         user.isReady = !user.isReady;
-        updateLobby(scene, sizer, data);
+        updateLobby(scene, sizer, lobbyData);
       } else {
-        if (allUsersReady()) {
+        if (checkAllUsersReady()) {
           scene.scene.start('GameScene');
         } else {
           console.error('All users are not ready');

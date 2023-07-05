@@ -16,51 +16,34 @@ class LobbyDirectory extends Phaser.Scene {
     super({ key: 'LobbyDirectory' });
   }
 
-  init(data) {}
-
-  preload() {}
-
-  create(data) {
-    this.lobbies = [];
-    this.loadingText = this.add
-      .text(getCenter(this).x, getCenter(this).y, 'Joining Lobby')
-      .setOrigin(0.5, 0.5)
-      .setDepth(4)
-      .setVisible(false);
-
-    this.loadingSet = new Set(['getLobbies']);
-
-    const scrollablePanel = createScrollablePanel(this);
-
-    updatePanel(this, scrollablePanel, this.lobbies);
-
+  loadLobbies() {
     const scene = this;
-    setTimeout(() => {
-      this.lobbies = lobbiesTestData;
+    console.log(this.isTesting);
+    if (this.isTesting) {
+      setTimeout(() => {
+        this.lobbies = lobbiesTestData;
+        this.loadingSet.delete('getLobbies');
+        updatePanel(scene, this.scrollPanel, this.lobbies);
+      }, 500);
+    } else {
+      // listen for lobbies
       this.loadingSet.delete('getLobbies');
-      updatePanel(scene, scrollablePanel, this.lobbies);
-    }, 500);
+    }
+  }
 
-    this.add.text(5, 580, 'Join or create a lobby');
-    this.add
-      .text(5, 5, 'Back')
-      .setInteractive({ cursor: 'pointer' })
-      .on('pointerdown', () => {
-        this.scene.start('BootScene');
-      });
+  onCreateLobby() {
+    const scene = this;
 
-    createContainedButton(this, 'Create Lobby', {
-      x: 400,
-      y: 550
-    }).on('pointerdown', () => {
-      const lobbyName = prompt(
-        'Enter a lobby name (test names: "ready" and "notready"):'
-      );
-      if (lobbyName?.trim() == '' || lobbyName == null) {
-        return;
-      }
+    const lobbyName = prompt(
+      'Enter a lobby name (test names: "ready" and "notready"):'
+    );
+    if (lobbyName?.trim() == '' || lobbyName == null) {
+      return;
+    }
 
-      scene.loadingSet.add('createLobby');
+    scene.loadingSet.add('createLobby');
+
+    if (this.isTesting) {
       const createdLobby = {
         id: 'jkkdkSLJkl23ljkSKLDJ=42',
         name: lobbyName,
@@ -76,9 +59,44 @@ class LobbyDirectory extends Phaser.Scene {
 
       setTimeout(() => {
         scene.loadingSet.delete('createLobby');
-        scene.scene.start('LobbyScene', createdLobby);
+        scene.scene.start('LobbyScene', {
+          lobby: createdLobby,
+          isTesting: this.isTesting
+        });
       }, 500);
-    });
+    }
+  }
+
+  create(data) {
+    this.isTesting = data?.isTesting;
+
+    this.lobbies = [];
+    this.loadingText = this.add
+      .text(getCenter(this).x, getCenter(this).y, 'Joining Lobby')
+      .setOrigin(0.5, 0.5)
+      .setDepth(4)
+      .setVisible(false);
+
+    this.loadingSet = new Set(['getLobbies']);
+
+    this.scrollPanel = createScrollablePanel(this);
+
+    updatePanel(this, this.scrollPanel, this.lobbies);
+
+    this.loadLobbies();
+
+    this.add.text(5, 580, 'Join or create a lobby');
+    this.add
+      .text(5, 5, 'Back')
+      .setInteractive({ cursor: 'pointer' })
+      .on('pointerdown', () => {
+        this.scene.start('BootScene');
+      });
+
+    createContainedButton(this, 'Create Lobby', {
+      x: 400,
+      y: 550
+    }).on('pointerdown', this.onCreateLobby.bind(this));
   }
 
   update(time, delta) {
@@ -105,7 +123,14 @@ const createScrollablePanel = function (scene) {
       y: getCenter(scene).y - 35,
       width: 500,
       height: 500,
-      background: scene.rexUI.add.roundRectangle(0, 0, 2, 2, 10, COLOR_SECONDARY),
+      background: scene.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        10,
+        COLOR_SECONDARY
+      ),
 
       panel: {
         child: createFwSizerWrapper(scene, {
@@ -165,7 +190,7 @@ const updatePanel = function (scene, panel, lobbies) {
 
         setTimeout(() => {
           scene.loadingSet.delete('joinLobby');
-          scene.scene.start('LobbyScene', lobby); 
+          scene.scene.start('LobbyScene', { lobby, isTesting: scene.isTesting });
         }, 500);
       })
     );

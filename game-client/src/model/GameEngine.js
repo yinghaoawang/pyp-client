@@ -3,8 +3,9 @@ import PlayerState from './PlayerState';
 import userState from './userState';
 
 export default class GameEngine {
-  constructor(gameState) {
+  constructor(gameState, opts = { isTesting: false }) {
     this.gameState = gameState;
+    this.isTesting = opts?.isTesting;
   }
 
   initializePlayers({ currentPlayerIndex }) {
@@ -42,14 +43,15 @@ export default class GameEngine {
   }
 
   emitPlayCard(cardIndex) {
-    if (process.env.NODE_ENV === 'development') {
+    if (this.isTesting) {
       testPacketSender.sendPacket(
         'playCard',
         { cardIndex: cardIndex },
         userState.getCurrentUser()
       );
-    } else {
-      // real socket emit
+      return;
     }
+
+    // real socket emit
   }
 }

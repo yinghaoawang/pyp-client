@@ -9,6 +9,8 @@ class Connect extends Phaser.Scene {
   }
 
   create(data) {
+    this.isTesting = data?.isTesting;
+
     this.loadingGlobe = this.add
       .image(getCenter(this).x, getCenter(this).y - 20, 'globe')
       .setDisplaySize(250, 250)
@@ -16,26 +18,44 @@ class Connect extends Phaser.Scene {
       .setOrigin(0.5, 0.5);
 
     this.isLoading = true;
-    this.loadingText = this.add.text(getCenter(this).x, getSize(this).y - 100, 'Connecting to server', {
-      font: '20px'
-    });
+    this.loadingText = this.add.text(
+      getCenter(this).x,
+      getSize(this).y - 100,
+      'Connecting to server',
+      {
+        font: '20px'
+      }
+    );
     this.loadingText.setOriginFromFrame();
 
     this.socket = io(config.socketUrl);
   }
 
   update() {
-    this.loadingGlobe.rotation += 0.01;
-    if (this.isLoading && this.socket?.connected) {
+    const onConnected = (delay = 0) => {
+      if (!this.isLoading) return;
+
       console.log('connected');
       setTimeout(() => {
-        this.loadingText.setText('Connected, click anywhere');
+        this.loadingText
+          .setText('Connected, click anywhere')
+          .setInteractive({ cursor: 'pointer' });
         this.input.on('pointerdown', () => {
-          this.scene.start('LobbyDirectory');
+          this.scene.start('LobbyDirectory', { isTesting: this.isTesting });
         });
-      }, 500);
+      }, delay);
       this.isLoading = false;
+    };
+
+    if (this.isTesting) {
+      onConnected();
+    } else {
+      if (this.socket?.connected) {
+        onConnected(500);
+      }
     }
+
+    this.loadingGlobe.rotation += 0.01;
   }
 }
 

@@ -10,11 +10,19 @@ import testPacketSender from '../data/sample/testPacketSender';
 class Game extends Phaser.Scene {
   constructor() {
     super({ key: 'GameScene' });
+    
   }
 
   init(data) {
+    this.isTesting = data?.isTesting;
+    if (this.isTesting) {
+      testPacketSender.setGame(this);
+    }
+
     this.gameState = new GameState();
-    this.gameEngine = new GameEngine(this.gameState);
+    this.gameEngine = new GameEngine(this.gameState, {
+      isTesting: this.isTesting
+    });
     this.gameUI = new GameUI(this, this.gameState, this.gameEngine);
     this.gameEventQueue = new GameEventQueue(
       this.gameState,
@@ -22,10 +30,6 @@ class Game extends Phaser.Scene {
       this.gameUI
     );
     this.isRunning = false;
-
-    if (process.env.NODE_ENV === 'development') {
-      testPacketSender.setGame(this);
-    }
   }
 
   preload() {}

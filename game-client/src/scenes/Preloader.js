@@ -7,21 +7,28 @@ class Preloader extends Phaser.Scene {
   }
 
   preload() {
-    this.add.image(400, 300, 'logo').setOrigin(.5, .5).setDisplaySize(600, 200);
+    this.add
+      .image(400, 300, 'logo')
+      .setOrigin(0.5, 0.5)
+      .setDisplaySize(600, 200);
 
     this.load.setPath('assets');
     this.load.image('globe', 'globe.png');
   }
 
   create(data) {
+    this.isTesting = data?.isTesting;
+
     this.add
       .text(400, 450, 'Start', {
         font: '25px'
       })
       .setInteractive({ cursor: 'pointer' })
-      .setOrigin(.5, .5);
+      .setOrigin(0.5, 0.5);
 
-    this.input.on('pointerdown', () => this.scene.start('ConnectScene'));
+    this.input.on('pointerdown', () =>
+      this.scene.start('ConnectScene', { isTesting: this.isTesting })
+    );
   }
 }
 
