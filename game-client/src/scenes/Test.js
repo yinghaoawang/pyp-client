@@ -23,7 +23,7 @@ class Test extends Phaser.Scene {
         space: { item: 8 },
         buttons: [
           createButtonLabel(this, 'Normal Start').on('pointerdown', () => {
-            this.scene.start('PreloaderScene');
+            this.scene.start('PreloaderScene', { isTesting: false });
           }),
           createButtonLabel(this, 'Test Start').on('pointerdown', () => {
             this.scene.start('PreloaderScene', { isTesting: true });
