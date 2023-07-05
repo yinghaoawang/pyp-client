@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { createContainedButton } from '../helpers/ui';
+import userState from '../model/userState';
 
 class Preloader extends Phaser.Scene {
   constructor() {
@@ -18,6 +19,10 @@ class Preloader extends Phaser.Scene {
 
   create(data) {
     this.isTesting = data?.isTesting;
+
+    if (this.isTesting) {
+      userState.loadTestUser();
+    }
 
     this.add
       .text(400, 450, 'Start', {

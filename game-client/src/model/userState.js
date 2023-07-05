@@ -1,57 +1,22 @@
-import Phaser from 'phaser';
+class UserState {
+  constructor() {}
 
-const Defaults = {
-  MaxUnlockedLevel: 0
-};
+  loadUser(user) {
+    this.isTesting = false;
+    this.user = user;
+  }
 
-class UserState extends Phaser.Events.EventEmitter {
-  constructor() {
-    super();
-    this.Defaults = Defaults;
-    this._data = {
-      maxUnlockedLevel: Defaults.MaxUnlockedLevel
-    };
-    this.load();
+  loadTestUser(user) {
+    this.isTesting = true;
+    this.user = user || { id: 9, username: 'guywho-testmygame' };
   }
 
   getCurrentUser() {
-    return { id: 9, username: 'guywho-testmygame' };
-  }
-
-  // Loads previously saved game state from local storage.
-  load() {
-    const saveData = JSON.parse(localStorage.getItem('save-data'));
-    if (saveData) {
-      this._data = saveData;
-    }
-  }
-
-  // Saves current game state to local storage.
-  save() {
-    localStorage.setItem('save-data', JSON.stringify(this._data));
-  }
-
-  // Clears previously saved game state from local storage
-  clearSavedData() {
-    localStorage.clear();
-  }
-
-  maxUnlockedLevel() {
-    return this._data.maxUnlockedLevel;
-  }
-
-  completeLevel(levelIndex) {
-    this._data.maxUnlockedLevel = Math.max(
-      this._data.maxUnlockedLevel,
-      levelIndex + 1
-    );
-    this.save();
+    return this.user;
   }
 }
 
-/**
- * Singleton
- */
 const userState = new UserState();
 
 export default userState;
+  

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import config from '../config';
 import { getCenter, getSize } from '../helpers';
-const { io } = require('socket.io-client');
+import { loadSocket, socket } from '../data/socket';
+import userState from '../model/userState';
 
 class Connect extends Phaser.Scene {
   constructor() {
@@ -28,7 +28,7 @@ class Connect extends Phaser.Scene {
     );
     this.loadingText.setOriginFromFrame();
 
-    this.socket = io(config.socketUrl);
+    loadSocket();
   }
 
   update() {
@@ -38,19 +38,28 @@ class Connect extends Phaser.Scene {
       console.log('connected');
       setTimeout(() => {
         this.loadingText
-          .setText('Connected, click anywhere')
+          .setText('Connected, click anywhere to login')
           .setInteractive({ cursor: 'pointer' });
+
         this.input.on('pointerdown', () => {
-          this.scene.start('LobbyDirectory', { isTesting: this.isTesting });
+          this.loadingText.setText('Logging in').setInteractive(false);
+          socket.emit('login', {
+            username: 'test',
+            password: 'password'
+          });
+          socket.on('loginSuccess', (payload) => {
+            userState.loadUser(payload.user);
+            this.scene.start('LobbyDirectory', { isTesting: this.isTesting });
+          });
         });
       }, delay);
       this.isLoading = false;
     };
 
     if (this.isTesting) {
-      onConnected();
+      this.scene.start('LobbyDirectory', { isTesting: this.isTesting });
     } else {
-      if (this.socket?.connected) {
+      if (socket?.connected) {
         onConnected(500);
       }
     }

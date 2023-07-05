@@ -5,11 +5,11 @@ import { getCenter } from '../helpers';
 import {
   COLOR_DARK,
   COLOR_LIGHT,
-  COLOR_PRIMARY,
   COLOR_SECONDARY,
   createContainedButton,
   createFwSizerWrapper
 } from '../helpers/ui';
+import { socket } from '../data/socket';
 
 class LobbyDirectory extends Phaser.Scene {
   constructor() {
@@ -17,31 +17,28 @@ class LobbyDirectory extends Phaser.Scene {
   }
 
   loadLobbies() {
-    const scene = this;
-    console.log(this.isTesting);
     if (this.isTesting) {
       setTimeout(() => {
         this.lobbies = lobbiesTestData;
         this.loadingSet.delete('getLobbies');
-        updatePanel(scene, this.scrollPanel, this.lobbies);
+        updatePanel(this, this.scrollPanel, this.lobbies);
       }, 500);
     } else {
       // listen for lobbies
-      this.loadingSet.delete('getLobbies');
+      socket.emit('getLobbies');
     }
   }
 
   onCreateLobby() {
-    const scene = this;
-
     const lobbyName = prompt(
       'Enter a lobby name (test names: "ready" and "notready"):'
     );
+
     if (lobbyName?.trim() == '' || lobbyName == null) {
       return;
     }
 
-    scene.loadingSet.add('createLobby');
+    this.loadingSet.add('createLobby', { lobbyName });
 
     if (this.isTesting) {
       const createdLobby = {
@@ -58,17 +55,44 @@ class LobbyDirectory extends Phaser.Scene {
       }
 
       setTimeout(() => {
-        scene.loadingSet.delete('createLobby');
-        scene.scene.start('LobbyScene', {
+        this.loadingSet.delete('createLobby');
+        this.scene.start('LobbyScene', {
           lobby: createdLobby,
           isTesting: this.isTesting
         });
       }, 500);
+    } else {
+      socket.emit('createLobby', { lobbyName });
     }
+  }
+
+  initSocketListeners() {
+    socket.on('getLobbies', (payload) => {
+      this.loadingSet.delete('getLobbies');
+
+      this.lobbies = payload.lobbies;
+      updatePanel(this, this.scrollPanel, this.lobbies);
+    });
+
+    socket.on('createdLobby', (payload) => {
+      this.loadingSet.delete('createLobby');
+
+      this.lobbies = payload.lobbies;
+      updatePanel(this, this.scrollPanel, this.lobbies);
+
+      this.loadingSet.add('joinLobby');
+      setTimeout(() => {
+        this.loadingSet.delete('joinLobby');
+        this.scene.start('LobbyScene');
+      }, 500);
+    });
   }
 
   create(data) {
     this.isTesting = data?.isTesting;
+    if (!this.isTesting) {
+      this.initSocketListeners();
+    }
 
     this.lobbies = [];
     this.loadingText = this.add
@@ -80,8 +104,6 @@ class LobbyDirectory extends Phaser.Scene {
     this.loadingSet = new Set(['getLobbies']);
 
     this.scrollPanel = createScrollablePanel(this);
-
-    updatePanel(this, this.scrollPanel, this.lobbies);
 
     this.loadLobbies();
 
@@ -153,7 +175,12 @@ const createScrollablePanel = function (scene) {
         track: scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_DARK),
         thumb: scene.rexUI.add
           .roundRectangle(0, 0, 0, 0, 13, COLOR_LIGHT)
-          .setInteractive({ cursor: 'pointer' })
+          .setInteractive({ cursor: 'pointer' }),
+      },
+
+      mouseWheelScroller: {
+        focus: false,
+        speed: 0.1
       },
 
       space: {
@@ -190,12 +217,16 @@ const updatePanel = function (scene, panel, lobbies) {
 
         setTimeout(() => {
           scene.loadingSet.delete('joinLobby');
-          scene.scene.start('LobbyScene', { lobby, isTesting: scene.isTesting });
+          scene.scene.start('LobbyScene', {
+            lobby,
+            isTesting: scene.isTesting
+          });
         }, 500);
       })
     );
     sizer.addNewLine();
   }
+  sizer.layout();
 
   panel.layout();
   return panel;

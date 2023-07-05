@@ -11,6 +11,65 @@ import {
   createButtonLabel,
   createFwSizerWrapper
 } from '../helpers/ui';
+import { socket } from '../data/socket';
+
+const onGetLobby = (scene, payload) => {
+  scene.loadingSet.delete('getLobby');
+  scene.lobbyData = payload.lobby;
+
+  let sizer = createFwSizerWrapper(scene, {
+    x: getCenter(scene).x,
+    y: getCenter(scene).y,
+    width: 500,
+    height: 500,
+    space: {
+      left: 3,
+      right: 3,
+      top: 3,
+      bottom: 3,
+      item: 8,
+      line: 8
+    },
+    align: 'left'
+  }).addBackground(scene.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_DARK));
+
+  scene.lobbySizer = sizer;
+  updateLobby(scene, scene.lobbySizer, scene.lobbyData);
+};
+
+const onTestGetLobby = (scene) => {
+  setTimeout(() => {
+    scene.loadingSet.delete('getLobby');
+    const currentUser = gameState.getCurrentUser();
+    if (scene.lobbyData.users.find((u) => u.id === currentUser.id) == null) {
+      scene.lobbyData.users.push(currentUser);
+    }
+    if (scene.lobbyData.users.find((u) => u.username === 'ready')) {
+      scene.lobbyData.users.find((u) => u.username === 'ready').isReady = true;
+    }
+
+    let sizer = createFwSizerWrapper(scene, {
+      x: getCenter(scene).x,
+      y: getCenter(scene).y,
+      width: 500,
+      height: 500,
+      space: {
+        left: 3,
+        right: 3,
+        top: 3,
+        bottom: 3,
+        item: 8,
+        line: 8
+      },
+      align: 'left'
+    }).addBackground(
+      scene.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_DARK)
+    );
+
+    updateLobby(scene, sizer, scene.lobbyData);
+    scene.lobbySizer = sizer;
+  }, 500);
+};
 
 class Lobby extends Phaser.Scene {
   constructor() {
@@ -24,7 +83,6 @@ class Lobby extends Phaser.Scene {
   create(data) {
     this.isTesting = data?.isTesting;
     this.lobbyData = data?.lobby;
-    console.log(data);
 
     this.loadingText = this.add
       .text(getCenter(this).x, getCenter(this).y, '')
@@ -40,38 +98,12 @@ class Lobby extends Phaser.Scene {
         this.scene.start('LobbyDirectory');
       });
 
-    let sizer;
-
-    setTimeout(() => {
-      this.loadingSet.delete('getLobby');
-      const currentUser = gameState.getCurrentUser();
-      if (this.lobbyData.users.find((u) => u.id === currentUser.id) == null) {
-        this.lobbyData.users.push(currentUser);
-      }
-      if (this.lobbyData.users.find((u) => u.username === 'ready')) {
-        this.lobbyData.users.find((u) => u.username === 'ready').isReady = true;
-      }
-
-      sizer = createFwSizerWrapper(this, {
-        x: getCenter(this).x,
-        y: getCenter(this).y,
-        width: 500,
-        height: 500,
-        space: {
-          left: 3,
-          right: 3,
-          top: 3,
-          bottom: 3,
-          item: 8,
-          line: 8
-        },
-        align: 'left'
-      }).addBackground(
-        this.rexUI.add.roundRectangle(0, 0, 10, 10, 0, COLOR_DARK)
-      );
-
-      updateLobby(this, sizer, this.lobbyData);
-    }, 500);
+    if (this.isTesting) {
+      onTestGetLobby(this);
+    } else {
+      socket.on('getUsersLobby', (payload) => onGetLobby(this, payload));
+      socket.emit('getUsersLobby');
+    }
   }
 
   update(time, delta) {
@@ -115,7 +147,7 @@ const updateLobby = function (scene, sizer, lobbyData) {
   sizer.add(title);
 
   const checkAllUsersReady = () =>
-  lobbyData.users.reduce((acc, user, idx) => {
+    lobbyData.users.reduce((acc, user, idx) => {
       if (acc === false) return false;
       const isHost = lobbyData.host.username === user.username;
       if (isHost) return true;
@@ -185,7 +217,9 @@ const updateLobby = function (scene, sizer, lobbyData) {
   }
 
   function createUserButtonLabel() {
-    const user = lobbyData.users.find((u) => u.id === gameState.getCurrentUser().id);
+    const user = lobbyData.users.find(
+      (u) => u.id === gameState.getCurrentUser().id
+    );
     if (user == null) {
       throw new Error('Current user not found in lobby');
     }
@@ -203,7 +237,11 @@ const updateLobby = function (scene, sizer, lobbyData) {
         }
       },
       null,
-      isHost ? (checkAllUsersReady() ? COLOR_LIGHT : COLOR_DISABLED) : COLOR_LIGHT
+      isHost
+        ? checkAllUsersReady()
+          ? COLOR_LIGHT
+          : COLOR_DISABLED
+        : COLOR_LIGHT
     );
 
     if (isHost && !checkAllUsersReady()) return userButton;
