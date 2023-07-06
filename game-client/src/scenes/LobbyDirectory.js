@@ -175,7 +175,7 @@ const createScrollablePanel = function (scene) {
         track: scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, COLOR_DARK),
         thumb: scene.rexUI.add
           .roundRectangle(0, 0, 0, 0, 13, COLOR_LIGHT)
-          .setInteractive({ cursor: 'pointer' }),
+          .setInteractive({ cursor: 'pointer' })
       },
 
       mouseWheelScroller: {
@@ -208,7 +208,7 @@ const updatePanel = function (scene, panel, lobbies) {
         scene,
         lobbyText,
         {
-          width: panel.width
+          width: 500
         },
         { align: 'left' },
         { color: '#000022' }
