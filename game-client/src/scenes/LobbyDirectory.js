@@ -67,6 +67,10 @@ class LobbyDirectory extends Phaser.Scene {
   }
 
   initSocketListeners() {
+    socket.off('getLobbies');
+    socket.off('createdLobby');
+    socket.off('joinLobby');
+
     socket.on('getLobbies', (payload) => {
       this.loadingSet.delete('getLobbies');
 
@@ -79,12 +83,16 @@ class LobbyDirectory extends Phaser.Scene {
 
       this.lobbies = payload.lobbies;
       updatePanel(this, this.scrollPanel, this.lobbies);
+      this.scene.start('LobbyScene');
+    });
 
-      this.loadingSet.add('joinLobby');
-      setTimeout(() => {
-        this.loadingSet.delete('joinLobby');
-        this.scene.start('LobbyScene');
-      }, 500);
+    socket.on('joinLobby', (payload) => {
+      if (payload.message) {
+        alert(payload.message);
+      }
+
+      this.loadingSet.delete('joinLobby');
+      this.scene.start('LobbyScene');
     });
   }
 
@@ -215,13 +223,17 @@ const updatePanel = function (scene, panel, lobbies) {
       ).on('pointerdown', () => {
         scene.loadingSet.add('joinLobby');
 
-        setTimeout(() => {
-          scene.loadingSet.delete('joinLobby');
-          scene.scene.start('LobbyScene', {
-            lobby,
-            isTesting: scene.isTesting
-          });
-        }, 500);
+        if (scene.isTesting) {
+          setTimeout(() => {
+            scene.loadingSet.delete('joinLobby');
+            scene.scene.start('LobbyScene', {
+              lobby,
+              isTesting: scene.isTesting
+            });
+          }, 500);
+        } else {
+          socket.emit('joinLobby', { lobbyId: lobby.id });
+        }
       })
     );
     sizer.addNewLine();
